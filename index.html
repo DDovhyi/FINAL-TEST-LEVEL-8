@@ -298,17 +298,6 @@
 
     </main>
 
-    <!-- Custom Modal / Message Box -->
-    <div id="message-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-xs p-4">
-        <div class="bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-4">
-            <h3 id="modal-title" class="text-lg font-bold text-slate-100">Notice</h3>
-            <p id="modal-body" class="text-sm text-slate-300 leading-relaxed"></p>
-            <div class="flex justify-end">
-                <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition cursor-pointer">Got it</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Set default today's date
         document.getElementById('exam-date').valueAsDate = new Date();
@@ -321,13 +310,25 @@
                     word: 'dishwasher',
                     topic: 'Appliances',
                     maxPts: 2,
-                    reference: 'A kitchen appliance/machine that washes plates, glasses, cutlery, and pans automatically.'
+                    bannedStems: ['dishwasher'],
+                    conceptGroups: [
+                        ['machine', 'appliance', 'device', 'equipment', 'gadget'],
+                        ['wash', 'clean', 'rinse'],
+                        ['dish', 'plate', 'cutlery', 'bowl', 'cup', 'glass', 'pan', 'utensil', 'kitchenware']
+                    ],
+                    reference: 'A kitchen appliance or machine that washes plates, glasses, cutlery, and pans automatically.'
                 },
                 {
                     id: 'def_2',
                     word: 'knead (dough)',
                     topic: 'Cookery',
                     maxPts: 2,
+                    bannedStems: ['knead'],
+                    conceptGroups: [
+                        ['press', 'fold', 'stretch', 'squeeze', 'work', 'mix', 'massage', 'push'],
+                        ['dough', 'flour', 'pastry', 'bread', 'mixture', 'batter'],
+                        ['hand', 'finger', 'smooth', 'elastic', 'soft', 'bak']
+                    ],
                     reference: 'To press, fold, and stretch dough with your hands so it becomes smooth and elastic before baking.'
                 },
                 {
@@ -335,27 +336,47 @@
                     word: 'overcome difficulties / obstacles',
                     topic: 'Success and failure',
                     maxPts: 2,
-                    reference: 'To successfully deal with and get past problems, barriers, or hard situations that block progress.'
+                    bannedStems: ['overcome'],
+                    conceptGroups: [
+                        ['solve', 'deal', 'beat', 'defeat', 'conquer', 'pass', 'get past', 'manage', 'handle', 'succeed', 'win'],
+                        ['difficult', 'obstacle', 'problem', 'barrier', 'hard', 'challeng', 'trouble', 'issue', 'struggl']
+                    ],
+                    reference: 'To successfully deal with and get past problems, barriers, or hard situations that block your progress.'
                 },
                 {
                     id: 'def_4',
                     word: 'deforestation',
                     topic: 'Environment',
                     maxPts: 2,
-                    reference: 'Cutting down or clearing away large areas of forests or trees, often for farming, timber, or building.'
+                    bannedStems: ['deforest'],
+                    conceptGroups: [
+                        ['cut', 'clear', 'destroy', 'remov', 'chop', 'burn', 'eliminat', 'loss', 'reduc'],
+                        ['tree', 'forest', 'wood', 'jungle', 'rainforest', 'timber']
+                    ],
+                    reference: 'Cutting down or clearing away large areas of trees and forests, often for farming, timber, or building.'
                 },
                 {
                     id: 'def_5',
                     word: 'embezzlement',
                     topic: 'Crime',
                     maxPts: 2,
-                    reference: 'Stealing or misappropriating money or property that someone was trusted to manage or look after.'
+                    bannedStems: ['embezzl'],
+                    conceptGroups: [
+                        ['steal', 'theft', 'take', 'misappropriat', 'fraud', 'illegal'],
+                        ['money', 'fund', 'cash', 'asset', 'property', 'financ'],
+                        ['trust', 'work', 'compan', 'employ', 'job', 'responsib', 'manag', 'organi']
+                    ],
+                    reference: 'Stealing or misappropriating money or property that someone was trusted to manage or look after at work.'
                 },
                 {
                     id: 'def_6',
                     word: 'gorgeous',
                     topic: 'Words instead of "very ___"',
                     maxPts: 2,
+                    bannedStems: ['gorgeous'],
+                    conceptGroups: [
+                        ['beautiful', 'attractive', 'lovely', 'stunning', 'pretty', 'wonderful', 'amazing', 'magnificent', 'handsome', 'pleasant']
+                    ],
                     reference: 'Extremely attractive, beautiful, or pleasant.'
                 }
             ],
@@ -366,7 +387,8 @@
                     topic: 'American / British English',
                     direction: 'EN → RU',
                     maxPts: 1,
-                    accepted: ['тротуар']
+                    acceptedStems: ['тротуар', 'пешеходн'],
+                    reference: 'тротуар'
                 },
                 {
                     id: 'wt_2',
@@ -374,7 +396,9 @@
                     topic: 'Success and failure',
                     direction: 'RU → EN',
                     maxPts: 1,
-                    accepted: ['fulfil an obligation', 'fulfill an obligation', 'fulfil obligations', 'fulfill obligations']
+                    acceptedStems: ['fulfil', 'fulfill', 'obligation', 'duty', 'duties'],
+                    requirePair: [['fulfil', 'fulfill', 'perform', 'carry out', 'meet'], ['obligation', 'duty', 'duties']],
+                    reference: 'fulfil an obligation / fulfill an obligation'
                 },
                 {
                     id: 'wt_3',
@@ -382,7 +406,8 @@
                     topic: 'What your body does',
                     direction: 'EN → RU',
                     maxPts: 1,
-                    accepted: ['дрожать', 'трястись', 'дрожать, трястись']
+                    acceptedStems: ['дрож', 'тряст', 'тряс', 'озноб'],
+                    reference: 'дрожать, трястись'
                 },
                 {
                     id: 'wt_4',
@@ -390,7 +415,8 @@
                     topic: 'Politics',
                     direction: 'EN → RU',
                     maxPts: 1,
-                    accepted: ['избирательный округ', 'округ']
+                    acceptedStems: ['избирательн', 'округ'],
+                    reference: 'избирательный округ'
                 },
                 {
                     id: 'wt_5',
@@ -398,7 +424,8 @@
                     topic: 'Appliances',
                     direction: 'RU → EN',
                     maxPts: 1,
-                    accepted: ['charger', 'phone charger', 'a charger', 'a phone charger']
+                    acceptedStems: ['charger', 'charging'],
+                    reference: '(phone) charger'
                 },
                 {
                     id: 'wt_6',
@@ -406,7 +433,8 @@
                     topic: 'Law',
                     direction: 'EN → RU',
                     maxPts: 1,
-                    accepted: ['правонарушение / нарушитель', 'правонарушение и нарушитель', 'правонарушение, нарушитель', 'преступление / преступник']
+                    acceptedStems: ['правонаруш', 'нарушит', 'преступл', 'преступн'],
+                    reference: 'правонарушение / нарушитель'
                 }
             ],
             patternsList: [
@@ -418,72 +446,188 @@
                 'Mixed Conditionals (3rd/2nd OR 2nd/3rd)'
             ],
             patternSentences: [
-                { id: 'ps_1', word: 'multicooker', topic: 'Appliances', maxPts: 3 },
-                { id: 'ps_2', word: 'accomplish (the task)', topic: 'Success and failure', maxPts: 3 },
-                { id: 'ps_3', word: 'renewable energy', topic: 'Environment', maxPts: 3 },
-                { id: 'ps_4', word: 'witness', topic: 'Law', maxPts: 3 },
-                { id: 'ps_5', word: 'stifling', topic: 'Weather forecast', maxPts: 3 },
-                { id: 'ps_6', word: 'yawn', topic: 'What your body does', maxPts: 3 }
+                {
+                    id: 'ps_1',
+                    word: 'multicooker',
+                    wordStems: ['multicooker', 'multi-cooker', 'multi cooker'],
+                    topic: 'Appliances',
+                    maxPts: 3,
+                    sample: 'You ought to buy a multicooker if you want to save time on preparing healthy dinners.'
+                },
+                {
+                    id: 'ps_2',
+                    word: 'accomplish (the task)',
+                    wordStems: ['accomplish'],
+                    topic: 'Success and failure',
+                    maxPts: 3,
+                    sample: 'The manager expected the team to accomplish the task before Friday afternoon.'
+                },
+                {
+                    id: 'ps_3',
+                    word: 'renewable energy',
+                    wordStems: ['renewable'],
+                    topic: 'Environment',
+                    maxPts: 3,
+                    sample: 'Many European countries are bound to invest more in renewable energy over the next decade.'
+                },
+                {
+                    id: 'ps_4',
+                    word: 'witness',
+                    wordStems: ['witness'],
+                    topic: 'Law',
+                    maxPts: 3,
+                    sample: 'No sooner had the witness entered the courtroom than the defense attorney asked to postpone the hearing.'
+                },
+                {
+                    id: 'ps_5',
+                    word: 'stifling',
+                    wordStems: ['stifling', 'stifle'],
+                    topic: 'Weather forecast',
+                    maxPts: 3,
+                    sample: 'It was the stifling heat in the subway that made several passengers feel dizzy.'
+                },
+                {
+                    id: 'ps_6',
+                    word: 'yawn',
+                    wordStems: ['yawn'],
+                    topic: 'What your body does',
+                    maxPts: 3,
+                    sample: 'If I had gone to bed earlier last night, I wouldn’t be yawning throughout the lecture right now.'
+                }
             ],
             ruToEn: [
                 {
                     id: 're_1',
                     source: 'Нам следовало бы быть более внимательными, когда мы скачивали это обновление, но мы не проверили настройки.',
                     reference: 'We ought to have been more careful when we downloaded that update, but we didn’t check the settings.',
+                    keyGroups: [
+                        ['ought to have', 'oughta have', 'should have'],
+                        ['careful', 'attentive', 'cautious'],
+                        ['download'],
+                        ['updat'],
+                        ['setting', 'config']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_2',
                     source: 'Нечасто бывает так, что кандидату удаётся достичь компромисса с оппозицией до выборов.',
                     reference: 'Seldom does a candidate manage to reach a compromise with the opposition before the election.',
+                    keyGroups: [
+                        ['seldom', 'rarely'],
+                        ['candidat'],
+                        ['manag', 'succeed'],
+                        ['compromis'],
+                        ['opposit'],
+                        ['elect']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_3',
                     source: 'Именно из-за вырубки лесов и выхлопных газов уровень загрязнения воздуха в городе стал таким высоким.',
                     reference: 'It is because of deforestation and exhaust fumes that the level of air pollution in the city has become so high.',
+                    keyGroups: [
+                        ['it is', 'it was'],
+                        ['deforest'],
+                        ['exhaust', 'fume', 'emission'],
+                        ['pollut'],
+                        ['high']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_4',
                     source: 'Если бы я был более предусмотрительным в прошлом месяце, я бы не потерял важный файл из-за сбоя системы.',
                     reference: 'If I had been more prudent last month, I wouldn’t have lost an important file because of a bug / system crash.',
+                    keyGroups: [
+                        ['if'],
+                        ['had been', 'were', 'was'],
+                        ['prudent', 'cautious', 'careful'],
+                        ['would not', 'wouldn'],
+                        ['los', 'lost'],
+                        ['bug', 'crash', 'glitch', 'error', 'fail']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_5',
                     source: 'Ожидается, что новый закон о защите окружающей среды вступит в силу в следующем месяце.',
                     reference: 'The new environmental protection law is due to come into force next month.',
+                    keyGroups: [
+                        ['due to', 'expected to', 'supposed to', 'likely to'],
+                        ['law', 'bill', 'act'],
+                        ['environment'],
+                        ['protect'],
+                        ['force', 'effect', 'operat']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_6',
                     source: 'Судья заставил свидетеля повторить свои показания, потому что в зале суда было слишком шумно.',
                     reference: 'The judge made the witness repeat his testimony because it was too noisy in court.',
+                    keyGroups: [
+                        ['judg'],
+                        ['made', 'forced'],
+                        ['witness'],
+                        ['repeat'],
+                        ['court', 'noisy', 'loud']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_7',
                     source: 'Не успели мы выйти из дома, как начался проливной дождь с градом.',
                     reference: 'No sooner had we left the house than torrential rain with hail started. / Hardly had we left the house when torrential rain and hail began.',
+                    keyGroups: [
+                        ['no sooner', 'hardly', 'barely'],
+                        ['had'],
+                        ['left', 'gone out', 'stepped out'],
+                        ['torrential', 'heavy', 'pouring', 'downpour'],
+                        ['hail']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_8',
                     source: 'Что меня действительно поразило, так это её способность сохранять хладнокровие и справляться с препятствиями.',
                     reference: 'What really impressed me was her ability to stay calm and cope with obstacles.',
+                    keyGroups: [
+                        ['what'],
+                        ['impress', 'amaz', 'struck'],
+                        ['was'],
+                        ['calm', 'cool', 'compos'],
+                        ['cope', 'deal', 'overcom', 'handl'],
+                        ['obstacl', 'difficult', 'barrier']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_9',
                     source: 'Подозреваемого, скорее всего, приговорят к общественным работам, поскольку это его первое правонарушение.',
                     reference: 'The suspect is likely to be sentenced to community service since it is his first offence.',
+                    keyGroups: [
+                        ['suspect'],
+                        ['likely'],
+                        ['sentenc'],
+                        ['community service'],
+                        ['offenc', 'offens', 'crime']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 're_10',
                     source: 'Если бы она не была такой вспыльчивой, она бы не накричала на своего коллегу вчера на совещании.',
                     reference: 'If she weren’t so short-tempered, she wouldn’t have yelled at her colleague at the meeting yesterday.',
+                    keyGroups: [
+                        ['if'],
+                        ['weren', 'wasn', 'hadn'],
+                        ['short-tempered', 'short tempered', 'hot-tempered', 'quick-tempered', 'irritable'],
+                        ['would not have', 'wouldn'],
+                        ['yell', 'shout', 'scream'],
+                        ['colleague', 'coworker', 'co-worker']
+                    ],
                     maxPts: 2
                 }
             ],
@@ -492,60 +636,133 @@
                     id: 'er_1',
                     source: 'What annoyed me most was that he didn’t even apologize after spilling coffee on my laptop.',
                     reference: 'Больше всего меня разозлило то, что он даже не извинился после того, как пролил кофе на мой ноутбук.',
+                    keyGroups: [
+                        ['больше всего', 'что меня'],
+                        ['разозл', 'раздраж', 'бесил'],
+                        ['извин'],
+                        ['прол', 'разл'],
+                        ['ноутбук', 'лэптоп']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_2',
                     source: 'No sooner had the chef grated the cheese and chopped the herbs than the guests started arriving.',
                     reference: 'Не успел шеф-повар натереть сыр и нашинковать зелень, как начали приходить гости.',
+                    keyGroups: [
+                        ['не успел', 'как только', 'едва'],
+                        ['повар', 'шеф'],
+                        ['натер', 'натёр', 'тёрк', 'терк'],
+                        ['нашинк', 'нарез', 'поруб', 'измельч'],
+                        ['зелен', 'трав'],
+                        ['гост']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_3',
                     source: 'We saw the burglar climbing over the fence while the neighbors were away.',
                     reference: 'Мы видели, как взломщик перелезал через забор, пока соседей не было дома.',
+                    keyGroups: [
+                        ['видели'],
+                        ['взломщ', 'вор', 'грабит'],
+                        ['перелез', 'лез', 'перебира'],
+                        ['забор', 'оград'],
+                        ['сосед']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_4',
                     source: 'He is bound to be promoted because he always fulfills his obligations on time.',
                     reference: 'Его непременно повысят, потому что он всегда вовремя выполняет свои обязательства.',
+                    keyGroups: [
+                        ['непременно', 'обязательно', 'точно', 'наверняка', 'обречен', 'гарантирован'],
+                        ['повыс', 'продвин', 'повышен'],
+                        ['выполн', 'исполн'],
+                        ['обязательст', 'обязанност'],
+                        ['вовремя', 'в срок']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_5',
                     source: 'Little did the voters realize that the politician had been involved in bribery and fraud.',
                     reference: 'Избиратели даже не подозревали, что этот политик был замешан во взяточничестве и мошенничестве.',
+                    keyGroups: [
+                        ['не подозрева', 'не осознава', 'не понима', 'не знал', 'мало кто'],
+                        ['избирател', 'голосующ'],
+                        ['политик'],
+                        ['взяточн', 'взятк', 'коррупц'],
+                        ['мошеннич', 'афер', 'обман']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_6',
                     source: 'You ought not to have turned off notifications if you were expecting an urgent attachment.',
                     reference: 'Тебе не следовало отключать уведомления, если ты ждал срочное вложение.',
+                    keyGroups: [
+                        ['не следовало', 'не стоило', 'не нужно было'],
+                        ['отключ', 'выключ'],
+                        ['уведомлен', 'оповещен'],
+                        ['срочн'],
+                        ['вложен', 'прикреплен', 'файл']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_7',
                     source: 'If we hadn’t invested in solar energy five years ago, our electricity bills would be appalling now.',
                     reference: 'Если бы мы не вложились в солнечную энергию пять лет назад, наши счета за электричество сейчас были бы ужасающими.',
+                    keyGroups: [
+                        ['если бы', 'не влож', 'не инвестир'],
+                        ['солнечн'],
+                        ['счет', 'счёт'],
+                        ['электрич', 'электроэнерг'],
+                        ['ужасающ', 'ужасн', 'огромн', 'чудовищн']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_8',
                     source: 'The flight was supposed to take off at noon, but a severe blizzard forced the airport to cancel all departures.',
                     reference: 'Рейс должен был вылететь в полдень, но сильная метель вынудила аэропорт отменить все вылеты.',
+                    keyGroups: [
+                        ['рейс', 'самолёт', 'самолет'],
+                        ['должен был', 'предполагал'],
+                        ['вылет', 'взлет'],
+                        ['полдень', '12'],
+                        ['метел', 'снежн', 'буран', 'вьюг'],
+                        ['отмен']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_9',
                     source: 'It was the embassy that provided the citizens with legal assistance after their passports were stolen by a pickpocket.',
                     reference: 'Именно посольство оказало гражданам юридическую помощь после того, как их паспорта украл карманник.',
+                    keyGroups: [
+                        ['именно посольств', 'посольств'],
+                        ['юридическ', 'правов'],
+                        ['помощ', 'поддержк'],
+                        ['паспорт'],
+                        ['карманник', 'карманн']
+                    ],
                     maxPts: 2
                 },
                 {
                     id: 'er_10',
                     source: 'The defense attorney expects the jury to pass a verdict of not guilty due to a lack of reliable evidence.',
                     reference: 'Адвокат защиты ожидает, что присяжные вынесут оправдательный вердикт (вердикт «невиновен») из-за нехватки надёжных улик.',
+                    keyGroups: [
+                        ['адвокат', 'защитник'],
+                        ['ожида', 'рассчитыва'],
+                        ['присяжн'],
+                        ['вердикт', 'решени'],
+                        ['невинов', 'оправдат'],
+                        ['улик', 'доказательств']
+                    ],
                     maxPts: 2
                 }
             ],
@@ -553,37 +770,49 @@
                 {
                     id: 'sw_1',
                     word: 'although',
+                    key: 'although',
                     note: 'Concession / contrast (covers although / even though / though)',
+                    sample: 'Although the weather was gloomy and humid, we still decided to go for a walk.',
                     maxPts: 2
                 },
                 {
                     id: 'sw_2',
                     word: 'quite',
+                    key: 'quite',
                     note: 'Degree modifier before adjectives/adverbs or "a/an" (covers quite / rather / pretty)',
+                    sample: 'He got quite a good salary at his new IT company.',
                     maxPts: 2
                 },
                 {
                     id: 'sw_3',
                     word: 'despite',
-                    note: 'Preposition of contrast followed by noun/gerund/the fact that (covers despite / in spite of)',
+                    key: 'despite',
+                    note: 'Preposition of contrast followed by noun/gerund/the fact that (never "despite of")',
+                    sample: 'Despite having strong evidence, the prosecutor struggled to convince the jury.',
                     maxPts: 2
                 },
                 {
                     id: 'sw_4',
                     word: 'in case',
+                    key: 'in case',
                     note: 'Precaution / preparation for a possible future situation (no "will" after it)',
+                    sample: 'Take a power bank with you in case your mobile phone runs out of battery.',
                     maxPts: 2
                 },
                 {
                     id: 'sw_5',
                     word: 'unless',
+                    key: 'unless',
                     note: 'Conditional meaning "except if" / "if ... not" (no "will" after it)',
+                    sample: 'We won’t reach an agreement unless both sides make a compromise.',
                     maxPts: 2
                 },
                 {
                     id: 'sw_6',
                     word: 'though (at the end of a sentence)',
+                    key: 'though',
                     note: 'Spoken contrast marker placed at the end of a clause',
+                    sample: 'The apartment is rather small. It’s in a gorgeous neighborhood, though.',
                     maxPts: 2
                 }
             ],
@@ -626,7 +855,7 @@
                         <span id="score-${item.id}" class="text-xs font-bold text-slate-500">0 / ${item.maxPts} pts</span>
                     </div>
                     <input type="text" id="input-${item.id}" placeholder="Write a clear definition in English..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-3 rounded-lg leading-relaxed"></div>
                 </div>
             `).join('');
 
@@ -643,7 +872,7 @@
                         <span id="score-${item.id}" class="text-xs font-bold text-slate-500 shrink-0">0 / ${item.maxPts} pt</span>
                     </div>
                     <input type="text" id="input-${item.id}" placeholder="Your translation..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-                    <div id="fb-${item.id}" class="hidden text-xs p-2 rounded-lg"></div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg leading-relaxed"></div>
                 </div>
             `).join('');
 
@@ -668,7 +897,7 @@
                         </select>
                         <input type="text" id="input-${item.id}" placeholder="Write your sentence using '${item.word}' and the selected pattern..." class="sm:col-span-2 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
                     </div>
-                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-3 rounded-lg leading-relaxed"></div>
                 </div>
             `).join('');
 
@@ -681,7 +910,7 @@
                         <span id="score-${item.id}" class="text-xs font-bold text-slate-500 shrink-0">0 / ${item.maxPts} pts</span>
                     </div>
                     <textarea id="input-${item.id}" rows="2" placeholder="Write your English translation..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition"></textarea>
-                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-3 rounded-lg leading-relaxed"></div>
                 </div>
             `).join('');
 
@@ -694,7 +923,7 @@
                         <span id="score-${item.id}" class="text-xs font-bold text-slate-500 shrink-0">0 / ${item.maxPts} pts</span>
                     </div>
                     <textarea id="input-${item.id}" rows="2" placeholder="Write your translation..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition"></textarea>
-                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-3 rounded-lg leading-relaxed"></div>
                 </div>
             `).join('');
 
@@ -711,7 +940,7 @@
                         <span id="score-${item.id}" class="text-xs font-bold text-slate-500">0 / ${item.maxPts} pts</span>
                     </div>
                     <input type="text" id="input-${item.id}" placeholder="Compose a sentence using '${item.word}'..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
-                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-3 rounded-lg leading-relaxed"></div>
                 </div>
             `).join('');
 
@@ -814,191 +1043,495 @@
             document.getElementById('total-score-val').textContent = total;
         }
 
-        // ==================== MODAL HELPER ====================
-        function showModal(title, message) {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-body').textContent = message;
-            const modal = document.getElementById('message-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('message-modal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        // ==================== AI GRADING ENGINE ====================
-        function cleanAndParseJson(rawText) {
-            if (!rawText) throw new Error('Empty model response');
-            // Strip possible markdown code fences if returned by model
-            const cleaned = rawText
-                .replace(/^```json\s*/i, '')
-                .replace(/^```\s*/i, '')
-                .replace(/```\s*$/i, '')
+        // ==================== DETERMINISTIC SEMANTIC & GRAMMATICAL ENGINE ====================
+        function normalizeText(str) {
+            return (str || '')
+                .toLowerCase()
+                .replace(/[.,!?;:"'()\-—/\\]/g, ' ')
+                .replace(/\s+/g, ' ')
                 .trim();
-            return JSON.parse(cleaned);
         }
 
-        async function callGeminiBatch(batchPayload, maxRetries = 2) {
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            let delay = 800;
-            for (let attempt = 0; attempt <= maxRetries; attempt++) {
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(batchPayload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-                    return cleanAndParseJson(text);
-                } catch (err) {
-                    if (attempt === maxRetries) throw err;
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2;
+        // Levenshtein distance for typo tolerance (missing/swapped letters)
+        function levenshtein(a, b) {
+            if (a === b) return 0;
+            if (!a.length) return b.length;
+            if (!b.length) return a.length;
+            const matrix = Array.from({ length: b.length + 1 }, (_, i) => [i]);
+            for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    const cost = b[i - 1] === a[j - 1] ? 0 : 1;
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j - 1] + cost
+                    );
                 }
             }
+            return matrix[b.length][a.length];
         }
 
-        // Fallback local heuristic evaluator if API is unreachable
-        function runLocalFallbackEvaluation(submission) {
+        // Fuzzy match a concept stem against student tokens (tolerates minor spelling errors/missing letters)
+        function matchesStemFuzzy(normText, words, stem) {
+            const cleanStem = stem.toLowerCase().trim();
+            if (normText.includes(cleanStem)) return true;
+            if (cleanStem.includes(' ')) return false;
+            const maxDist = cleanStem.length >= 7 ? 2 : (cleanStem.length >= 4 ? 1 : 0);
+            if (maxDist === 0) return false;
+            return words.some(w => {
+                if (w.startsWith(cleanStem)) return true;
+                const prefix = w.slice(0, cleanStem.length);
+                return levenshtein(prefix, cleanStem) <= maxDist;
+            });
+        }
+
+        function getSurfacePolishNote(rawText) {
+            const trimmed = (rawText || '').trim();
+            if (!trimmed) return '';
+            const notes = [];
+            if (/^[a-zа-яё]/.test(trimmed)) {
+                notes.push('starts with a lowercase letter');
+            }
+            if (trimmed.split(/\s+/).length >= 4 && !/[.!?]$/.test(trimmed)) {
+                notes.push('missing final punctuation');
+            }
+            return notes.length ? ` (Surface note: ${notes.join(', ')} — no points deducted.)` : '';
+        }
+
+        function verifySelectedPattern(patternLabel, rawSentence, normSentence, tokens) {
+            if (!patternLabel) {
+                return { ok: false, reason: 'No pattern was selected from the dropdown list.' };
+            }
+
+            if (patternLabel.startsWith('Ought')) {
+                const hasOught = /\bought\s*(not|n't)?\s*to\b/.test(rawSentence.toLowerCase()) || /\boughtn't\b/.test(rawSentence.toLowerCase());
+                return hasOught
+                    ? { ok: true }
+                    : { ok: false, reason: 'Expected "ought (not) to + verb" in the sentence.' };
+            }
+
+            if (patternLabel.startsWith('Complex Object')) {
+                const triggerVerbs = [
+                    'want', 'wants', 'wanted', 'wish', 'wishes', 'wished', 'desire', 'desired',
+                    'expect', 'expects', 'expected', 'allow', 'allows', 'allowed', 'permit', 'permits', 'permitted',
+                    'consider', 'considers', 'considered', 'know', 'knows', 'knew', 'believe', 'believes', 'believed',
+                    'suppose', 'supposes', 'supposed', 'ask', 'asks', 'asked', 'order', 'orders', 'ordered',
+                    'make', 'makes', 'made', 'let', 'lets',
+                    'see', 'sees', 'saw', 'hear', 'hears', 'heard', 'watch', 'watches', 'watched',
+                    'feel', 'feels', 'felt', 'notice', 'notices', 'noticed', 'observe', 'observes', 'observed',
+                    'would like', 'would love'
+                ];
+                const hasTrigger = triggerVerbs.some(v => normSentence.includes(v));
+                const hasObjectStructure = /\b(me|him|her|us|them|you|someone|somebody|people|everyone|everybody|the\s+\w+|my\s+\w+|his\s+\w+|her\s+\w+|our\s+\w+|their\s+\w+)\s+(to\s+\w+|\w+ing|\w+)\b/.test(normSentence);
+                return (hasTrigger && hasObjectStructure)
+                    ? { ok: true }
+                    : { ok: false, reason: 'Expected a Complex Object verb (e.g., want/expect/make/let/see/hear) + object + (to) infinitive / -ing.' };
+            }
+
+            if (patternLabel.startsWith('Modal expressions')) {
+                const hasModalBe = /\b(am|is|are|was|were|'m|'s|'re)\s+(not\s+)?(about|allowed|bound|due|likely|supposed)\s+(to|that)\b/.test(rawSentence.toLowerCase());
+                return hasModalBe
+                    ? { ok: true }
+                    : { ok: false, reason: 'Expected "be + about / allowed / bound / due / likely / supposed + to".' };
+            }
+
+            if (patternLabel.startsWith('Inversion')) {
+                const hasNegFronting = /^(seldom|rarely|never|little|not only|at no time|hardly|barely|no sooner)\b/.test(normSentence);
+                const hasAux = /\b(do|does|did|have|has|had|am|is|are|was|were|can|could|will|would|should)\b/.test(normSentence);
+                return (hasNegFronting && hasAux)
+                    ? { ok: true }
+                    : { ok: false, reason: 'Expected negative/time fronting (Seldom/Never/Little/Not only/Hardly/No sooner) followed by auxiliary verb inversion.' };
+            }
+
+            if (patternLabel.startsWith('Emphasis')) {
+                const hasItCleft = /\bit\s+(is|was|'s)\s+.+\b(that|who|which|when|where)\b/.test(rawSentence.toLowerCase());
+                const hasWhatCleft = /\bwhat\s+.+\b(is|was)\b/.test(normSentence);
+                return (hasItCleft || hasWhatCleft)
+                    ? { ok: true }
+                    : { ok: false, reason: 'Expected an emphasis cleft structure ("It is/was ... that/who/which" or "What ... is/was ...").' };
+            }
+
+            if (patternLabel.startsWith('Mixed Conditionals')) {
+                const lower = rawSentence.toLowerCase();
+                const hasIf = /\bif\b/.test(normSentence);
+                const hasWould = /\b(would|could|might|'d)\b/.test(lower);
+                const hasPastPerf = /\b(had|hadn't|'d)\s+\w+/.test(lower);
+                return (hasIf && hasWould)
+                    ? { ok: true }
+                    : { ok: false, reason: 'Expected a Mixed Conditional combining "if" + past tense/past perfect with "would/could/might".' };
+            }
+
+            return { ok: true };
+        }
+
+        function evaluateDeterministicExam(submission) {
             const results = [];
 
-            const normalize = (s) => (s || '').toLowerCase().replace(/[.,!?;:"'()\-—]/g, ' ').replace(/\s+/g, ' ').trim();
-            const hasPolishSlip = (raw) => {
-                if (!raw) return '';
-                const notes = [];
-                if (/^[a-zа-яё]/.test(raw.trim())) notes.push('lowercase initial letter noted (no penalty)');
-                if (!/[.!?]$/.test(raw.trim()) && raw.trim().split(/\s+/).length > 3) notes.push('missing end punctuation noted (no penalty)');
-                return notes.length ? ` [Surface note: ${notes.join('; ')}]` : '';
+            // 1.1 Definitions (2 pts each)
+            EXAM_DATA.definitions.forEach(def => {
+                const sub = submission.definitions.find(s => s.id === def.id);
+                const raw = sub ? sub.studentAnswer : '';
+                const norm = normalizeText(raw);
+                const tokens = norm.split(' ').filter(Boolean);
+                const polishNote = getSurfacePolishNote(raw);
+
+                if (!norm) {
+                    results.push({
+                        id: def.id,
+                        awarded: 0,
+                        maxPts: def.maxPts,
+                        feedback: `No definition provided. Model definition: "${def.reference}"`
+                    });
+                    return;
+                }
+
+                // Check circular definition (using the target word itself without real explanation)
+                const usesBanned = def.bannedStems.some(b => norm.includes(b));
+                const matchedGroups = def.conceptGroups.filter(group =>
+                    group.some(stem => matchesStemFuzzy(norm, tokens, stem))
+                ).length;
+                const totalGroups = def.conceptGroups.length;
+                const ratio = matchedGroups / totalGroups;
+
+                if (usesBanned && matchedGroups <= 1) {
+                    results.push({
+                        id: def.id,
+                        awarded: 0.5,
+                        maxPts: def.maxPts,
+                        feedback: `Avoid defining the word by repeating "${def.word}" itself. Model definition: "${def.reference}"`
+                    });
+                } else if (ratio >= 0.65 || (totalGroups === 1 && matchedGroups === 1)) {
+                    results.push({
+                        id: def.id,
+                        awarded: def.maxPts,
+                        maxPts: def.maxPts,
+                        feedback: `Well-explained definition capturing the core meaning!${polishNote} Model: "${def.reference}"`
+                    });
+                } else if (matchedGroups >= 1 || tokens.length >= 5) {
+                    results.push({
+                        id: def.id,
+                        awarded: 1.5,
+                        maxPts: def.maxPts,
+                        feedback: `Good attempt with the right general idea, though slightly incomplete.${polishNote} Model: "${def.reference}"`
+                    });
+                } else {
+                    results.push({
+                        id: def.id,
+                        awarded: 0,
+                        maxPts: def.maxPts,
+                        feedback: `The definition does not clearly describe "${def.word}". Model definition: "${def.reference}"`
+                    });
+                }
+            });
+
+            // 1.2 Word Translations (1 pt each)
+            EXAM_DATA.wordTranslations.forEach(wt => {
+                const sub = submission.wordTranslations.find(s => s.id === wt.id);
+                const raw = sub ? sub.studentAnswer : '';
+                const norm = normalizeText(raw);
+                const tokens = norm.split(' ').filter(Boolean);
+                const polishNote = getSurfacePolishNote(raw);
+
+                if (!norm) {
+                    results.push({
+                        id: wt.id,
+                        awarded: 0,
+                        maxPts: wt.maxPts,
+                        feedback: `No translation provided. Expected: "${wt.reference}".`
+                    });
+                    return;
+                }
+
+                if (wt.requirePair) {
+                    const verbOk = wt.requirePair[0].some(stem => matchesStemFuzzy(norm, tokens, stem));
+                    const nounOk = wt.requirePair[1].some(stem => matchesStemFuzzy(norm, tokens, stem));
+                    if (verbOk && nounOk) {
+                        results.push({
+                            id: wt.id,
+                            awarded: wt.maxPts,
+                            maxPts: wt.maxPts,
+                            feedback: `Accurate translation!${polishNote}`
+                        });
+                    } else if (verbOk || nounOk) {
+                        results.push({
+                            id: wt.id,
+                            awarded: 0.5,
+                            maxPts: wt.maxPts,
+                            feedback: `Partially accurate — make sure both parts of the phrase are translated. Expected: "${wt.reference}".`
+                        });
+                    } else {
+                        results.push({
+                            id: wt.id,
+                            awarded: 0,
+                            maxPts: wt.maxPts,
+                            feedback: `Incorrect translation. Expected: "${wt.reference}".`
+                        });
+                    }
+                    return;
+                }
+
+                const matched = wt.acceptedStems.some(stem => matchesStemFuzzy(norm, tokens, stem));
+                if (matched) {
+                    results.push({
+                        id: wt.id,
+                        awarded: wt.maxPts,
+                        maxPts: wt.maxPts,
+                        feedback: `Correct translation!${polishNote}`
+                    });
+                } else {
+                    results.push({
+                        id: wt.id,
+                        awarded: 0,
+                        maxPts: wt.maxPts,
+                        feedback: `Incorrect translation. Expected: "${wt.reference}".`
+                    });
+                }
+            });
+
+            // 1.3 Pattern Sentences (3 pts each)
+            EXAM_DATA.patternSentences.forEach(ps => {
+                const sub = submission.patternSentences.find(s => s.id === ps.id);
+                const raw = sub ? sub.studentSentence : '';
+                const selectedPattern = sub ? sub.selectedPattern : '';
+                const norm = normalizeText(raw);
+                const tokens = norm.split(' ').filter(Boolean);
+                const polishNote = getSurfacePolishNote(raw);
+
+                if (!norm) {
+                    results.push({
+                        id: ps.id,
+                        awarded: 0,
+                        maxPts: ps.maxPts,
+                        feedback: `No sentence written. Example: "${ps.sample}"`
+                    });
+                    return;
+                }
+
+                const hasTargetWord = ps.wordStems.some(stem => matchesStemFuzzy(norm, tokens, stem));
+                const patternCheck = verifySelectedPattern(selectedPattern, raw, norm, tokens);
+
+                if (hasTargetWord && patternCheck.ok) {
+                    results.push({
+                        id: ps.id,
+                        awarded: ps.maxPts,
+                        maxPts: ps.maxPts,
+                        feedback: `Great job! Both "${ps.word}" and the selected pattern are used accurately.${polishNote}`
+                    });
+                } else if (!selectedPattern && hasTargetWord) {
+                    results.push({
+                        id: ps.id,
+                        awarded: 1.5,
+                        maxPts: ps.maxPts,
+                        feedback: `You used "${ps.word}", but forgot to select a pattern from the dropdown. Example: "${ps.sample}"`
+                    });
+                } else if (hasTargetWord && !patternCheck.ok) {
+                    results.push({
+                        id: ps.id,
+                        awarded: 1.5,
+                        maxPts: ps.maxPts,
+                        feedback: `"${ps.word}" is present, but the pattern doesn't match: ${patternCheck.reason} Example: "${ps.sample}"`
+                    });
+                } else if (!hasTargetWord && patternCheck.ok) {
+                    results.push({
+                        id: ps.id,
+                        awarded: 1.5,
+                        maxPts: ps.maxPts,
+                        feedback: `The chosen grammatical pattern is correct, but "${ps.word}" is missing from your sentence. Example: "${ps.sample}"`
+                    });
+                } else {
+                    results.push({
+                        id: ps.id,
+                        awarded: 0.5,
+                        maxPts: ps.maxPts,
+                        feedback: `Both the target word "${ps.word}" and the chosen pattern need revision. Example: "${ps.sample}"`
+                    });
+                }
+            });
+
+            // 2.1 RU -> EN & 2.2 EN -> RU (2 pts each)
+            const evaluateTranslationItem = (item, rawText) => {
+                const norm = normalizeText(rawText);
+                const tokens = norm.split(' ').filter(Boolean);
+                const polishNote = getSurfacePolishNote(rawText);
+
+                if (!norm) {
+                    return {
+                        id: item.id,
+                        awarded: 0,
+                        maxPts: item.maxPts,
+                        feedback: `No translation provided. Model translation: "${item.reference}"`
+                    };
+                }
+
+                const matchedCount = item.keyGroups.filter(group =>
+                    group.some(stem => matchesStemFuzzy(norm, tokens, stem))
+                ).length;
+                const ratio = matchedCount / item.keyGroups.length;
+
+                let awarded = 0;
+                let verdict = '';
+                if (ratio >= 0.75) {
+                    awarded = 2;
+                    verdict = `Accurate translation conveying the key vocabulary and grammatical structure!${polishNote}`;
+                } else if (ratio >= 0.55) {
+                    awarded = 1.5;
+                    verdict = `Very good translation — almost all key elements are present.${polishNote}`;
+                } else if (ratio >= 0.35) {
+                    awarded = 1;
+                    verdict = `Partially accurate, though some key vocabulary or structural details were missed.`;
+                } else if (matchedCount >= 1) {
+                    awarded = 0.5;
+                    verdict = `Only a small part of the sentence meaning was captured.`;
+                } else {
+                    awarded = 0;
+                    verdict = `The translation does not convey the required meaning or course structures.`;
+                }
+
+                return {
+                    id: item.id,
+                    awarded,
+                    maxPts: item.maxPts,
+                    feedback: `${verdict} Model: "${item.reference}"`
+                };
             };
 
-            // 1.1 Definitions
-            submission.definitions.forEach(d => {
-                const ans = normalize(d.studentAnswer);
-                const targetBase = normalize(d.targetWord.split('(')[0].split('/')[0]);
-                if (!ans) {
-                    results.push({ id: d.id, awarded: 0, maxPts: d.maxPts, feedback: 'No answer provided.' });
-                    return;
-                }
-                const refWords = normalize(d.referenceDefinition).split(' ').filter(w => w.length > 3);
-                const overlap = refWords.filter(w => ans.includes(w)).length;
-                const usesSameWord = targetBase.length > 3 && ans.includes(targetBase);
-
-                if (usesSameWord && ans.split(' ').length < 5) {
-                    results.push({ id: d.id, awarded: 1, maxPts: d.maxPts, feedback: 'Avoid repeating the target word directly without explaining its meaning.' + hasPolishSlip(d.studentAnswer) });
-                } else if (overlap >= 1 || ans.split(' ').length >= 4) {
-                    results.push({ id: d.id, awarded: d.maxPts, maxPts: d.maxPts, feedback: 'Clear explanation capturing the core meaning.' + hasPolishSlip(d.studentAnswer) });
-                } else {
-                    results.push({ id: d.id, awarded: 1, maxPts: d.maxPts, feedback: 'Partially conveys the idea, though could be more specific.' + hasPolishSlip(d.studentAnswer) });
-                }
+            EXAM_DATA.ruToEn.forEach(item => {
+                const sub = submission.ruToEn.find(s => s.id === item.id);
+                results.push(evaluateTranslationItem(item, sub ? sub.studentTranslation : ''));
             });
 
-            // 1.2 Word Translations
-            submission.wordTranslations.forEach(w => {
-                const ans = normalize(w.studentAnswer);
-                if (!ans) {
-                    results.push({ id: w.id, awarded: 0, maxPts: w.maxPts, feedback: 'No translation provided.' });
+            EXAM_DATA.enToRu.forEach(item => {
+                const sub = submission.enToRu.find(s => s.id === item.id);
+                results.push(evaluateTranslationItem(item, sub ? sub.studentTranslation : ''));
+            });
+
+            // 3.1 Small Words (2 pts each)
+            EXAM_DATA.smallWords.forEach(sw => {
+                const sub = submission.smallWords.find(s => s.id === sw.id);
+                const raw = sub ? sub.studentSentence : '';
+                const norm = normalizeText(raw);
+                const tokens = norm.split(' ').filter(Boolean);
+                const polishNote = getSurfacePolishNote(raw);
+
+                if (!norm) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 0,
+                        maxPts: sw.maxPts,
+                        feedback: `No sentence provided. Example: "${sw.sample}"`
+                    });
                     return;
                 }
-                const matched = w.acceptedAnswers.some(acc => {
-                    const normAcc = normalize(acc);
-                    return ans.includes(normAcc) || normAcc.includes(ans) || (ans.length >= 4 && normAcc.slice(0, 4) === ans.slice(0, 4));
+
+                const hasSmallWord = norm.includes(sw.key) || matchesStemFuzzy(norm, tokens, sw.key);
+                if (!hasSmallWord) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 0,
+                        maxPts: sw.maxPts,
+                        feedback: `Please include "${sw.key}" in your sentence. Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                // Rule 1: Never "despite of"
+                if (sw.id === 'sw_3' && /\bdespite\s+of\b/.test(norm)) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 1,
+                        maxPts: sw.maxPts,
+                        feedback: `Do not use "of" after "despite" (use "despite + noun/gerund" or "in spite of"). Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                // Rule 2: No "will" in the "unless" or "in case" clause
+                if ((sw.id === 'sw_4' || sw.id === 'sw_5') && new RegExp(`\\b${sw.key}\\s+(?:\\w+\\s+){1,3}(?:will|won't)\\b`).test(raw.toLowerCase())) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 1,
+                        maxPts: sw.maxPts,
+                        feedback: `Do not use "will" directly inside the "${sw.key}" clause — use Present Simple instead. Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                // Rule 3: "though" placed at the end of the sentence/clause
+                if (sw.id === 'sw_6' && !/\bthough\s*[.!?]*\s*$/i.test(raw.trim())) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 1,
+                        maxPts: sw.maxPts,
+                        feedback: `For this item, place "though" at the very end of the sentence. Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                // Require a complete sentence (at least 4 words)
+                if (tokens.length < 4) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 1,
+                        maxPts: sw.maxPts,
+                        feedback: `Please write a full, meaningful sentence demonstrating "${sw.key}". Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                results.push({
+                    id: sw.id,
+                    awarded: sw.maxPts,
+                    maxPts: sw.maxPts,
+                    feedback: `Correct and natural usage of "${sw.key}"!${polishNote}`
                 });
-                if (matched) {
-                    results.push({ id: w.id, awarded: w.maxPts, maxPts: w.maxPts, feedback: 'Accurate translation.' + hasPolishSlip(w.studentAnswer) });
-                } else {
-                    results.push({ id: w.id, awarded: 0, maxPts: w.maxPts, feedback: `Expected meaning: ${w.acceptedAnswers[0]}.` });
-                }
-            });
-
-            // 1.3 Pattern Sentences
-            submission.patternSentences.forEach(p => {
-                const sent = normalize(p.studentSentence);
-                const wordRoot = normalize(p.targetWord.split('(')[0]).slice(0, 5);
-                if (!sent) {
-                    results.push({ id: p.id, awarded: 0, maxPts: p.maxPts, feedback: 'No sentence written.' });
-                    return;
-                }
-                if (!p.selectedPattern) {
-                    results.push({ id: p.id, awarded: 1.5, maxPts: p.maxPts, feedback: 'Sentence written, but no grammatical pattern was selected from the dropdown.' });
-                    return;
-                }
-                const hasTarget = sent.includes(wordRoot);
-                let patternMatch = true;
-                if (p.selectedPattern.startsWith('Ought')) patternMatch = /\bought\b/.test(sent);
-                else if (p.selectedPattern.startsWith('Inversion')) patternMatch = /^(seldom|never|little|not only|hardly|barely|no sooner|at no time)/.test(sent);
-                else if (p.selectedPattern.startsWith('Emphasis')) patternMatch = /^(it is|it was|what )/.test(sent);
-                else if (p.selectedPattern.startsWith('Mixed')) patternMatch = /\bif\b/.test(sent) && /\b(would|could|might)\b/.test(sent);
-                else if (p.selectedPattern.startsWith('Modal')) patternMatch = /\b(about|allowed|bound|due|likely|supposed) to\b/.test(sent);
-
-                if (hasTarget && patternMatch) {
-                    results.push({ id: p.id, awarded: p.maxPts, maxPts: p.maxPts, feedback: 'Good use of both the target word and the selected pattern.' + hasPolishSlip(p.studentSentence) });
-                } else if (!patternMatch) {
-                    results.push({ id: p.id, awarded: 1.5, maxPts: p.maxPts, feedback: `The sentence does not clearly follow the selected pattern (${p.selectedPattern}).` });
-                } else {
-                    results.push({ id: p.id, awarded: 2, maxPts: p.maxPts, feedback: `Pattern is present, but make sure "${p.targetWord}" is included accurately.` });
-                }
-            });
-
-            // 2.1 & 2.2 Sentence Translations
-            [...submission.ruToEn, ...submission.enToRu].forEach(tr => {
-                const ans = normalize(tr.studentTranslation);
-                const ref = normalize(tr.referenceEnglish || tr.referenceRussian);
-                if (!ans) {
-                    results.push({ id: tr.id, awarded: 0, maxPts: tr.maxPts, feedback: 'No translation provided.' });
-                    return;
-                }
-                const refTokens = ref.split(' ').filter(t => t.length > 3);
-                const hits = refTokens.filter(t => ans.includes(t.slice(0, 4))).length;
-                const ratio = refTokens.length ? hits / refTokens.length : 0;
-
-                if (ratio >= 0.35 || ans.split(' ').length >= 5) {
-                    results.push({ id: tr.id, awarded: tr.maxPts, maxPts: tr.maxPts, feedback: 'Meaning and structure are conveyed well.' + hasPolishSlip(tr.studentTranslation) });
-                } else if (ratio >= 0.15) {
-                    results.push({ id: tr.id, awarded: 1, maxPts: tr.maxPts, feedback: `Partially accurate. Reference version: "${tr.referenceEnglish || tr.referenceRussian}"` });
-                } else {
-                    results.push({ id: tr.id, awarded: 0.5, maxPts: tr.maxPts, feedback: `Check key vocabulary/structure. Reference: "${tr.referenceEnglish || tr.referenceRussian}"` });
-                }
-            });
-
-            // 3.1 Small Words
-            submission.smallWords.forEach(sw => {
-                const raw = sw.studentSentence || '';
-                const sent = normalize(raw);
-                const key = normalize(sw.smallWord.split('(')[0]);
-                if (!sent) {
-                    results.push({ id: sw.id, awarded: 0, maxPts: sw.maxPts, feedback: 'No sentence provided.' });
-                    return;
-                }
-                if (!sent.includes(key)) {
-                    results.push({ id: sw.id, awarded: 0, maxPts: sw.maxPts, feedback: `Make sure to include "${key}" in your sentence.` });
-                    return;
-                }
-                if ((key === 'unless' || key === 'in case') && new RegExp(`${key}\\s+[a-z]+\\s+will\\b`).test(sent)) {
-                    results.push({ id: sw.id, awarded: 1, maxPts: sw.maxPts, feedback: `Do not use "will" directly after "${key}". Use Present Simple instead.` });
-                    return;
-                }
-                if (sw.id === 'sw_6' && !/though\s*[.!?]*\s*$/i.test(raw.trim())) {
-                    results.push({ id: sw.id, awarded: 1, maxPts: sw.maxPts, feedback: 'For this item, place "though" at the very end of the sentence.' });
-                    return;
-                }
-                results.push({ id: sw.id, awarded: sw.maxPts, maxPts: sw.maxPts, feedback: `Correct usage of "${key}".` + hasPolishSlip(raw) });
             });
 
             return {
-                overallSummary: 'Written sections evaluated successfully! Lowercase starts, missing commas, and minor spelling slips were noted gently without point deductions.',
+                overallSummary: 'Written exam evaluated! All definitions, grammatical patterns, translations, and small words have been checked. Minor capitalization, punctuation, and spelling slips were noted gently without deducting points.',
                 results
             };
+        }
+
+        // Optional fast-timeout Gemini API enhancer (falls back silently & instantly on any network/CORS issue)
+        async function tryGeminiWithShortTimeout(submission, timeoutMs = 6000) {
+            const apiKey = "";
+            if (!apiKey) {
+                throw new Error('Offline/sandbox mode: using built-in semantic engine.');
+            }
+
+            const controller = new AbortController();
+            const timerId = setTimeout(() => controller.abort(), timeoutMs);
+
+            try {
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                const systemPrompt = `You are a supportive Upper-Intermediate English examiner. Grade the exam JSON.
+NON-PENALTY RULES:
+- NEVER deduct points for lowercase letters (unless proper names/titles), missing commas/punctuation, or minor spelling typos/missing letters if the word is recognizable.
+- NEVER deduct points in Definitions if phrased simply, as long as core meaning is clear.
+- Mention any surface slips gently in feedback while awarding FULL points.`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    signal: controller.signal,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: JSON.stringify(submission) }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                clearTimeout(timerId);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+                return JSON.parse(cleaned);
+            } catch (err) {
+                clearTimeout(timerId);
+                throw err;
+            }
         }
 
         async function gradeWrittenExam() {
@@ -1018,7 +1551,6 @@
                 wordTranslations: EXAM_DATA.wordTranslations.map(w => ({
                     id: w.id,
                     prompt: w.prompt,
-                    acceptedAnswers: w.accepted,
                     maxPts: w.maxPts,
                     studentAnswer: document.getElementById(`input-${w.id}`).value.trim()
                 })),
@@ -1052,74 +1584,20 @@
                 }))
             };
 
-            // Lock UI
             btn.disabled = true;
             spinner.classList.remove('hidden');
             btnText.textContent = 'Evaluating Answers...';
 
-            const systemPrompt = `You are a supportive Upper-Intermediate English examiner. Grade the provided exam items.
-NON-PENALTY RULES:
-- NEVER deduct points for lowercase letters (unless proper nouns/names/titles), missing commas/punctuation, or minor spelling typos/missing letters if the intended word is recognizable.
-- NEVER deduct points in Definitions if phrased simply/imperfectly, as long as the core meaning is understandable.
-- Mention any surface slips (lowercase, commas, typos, rough phrasing) gently in feedback while awarding FULL points.
-- Deduct points (0.5 step) ONLY for genuine semantic mistakes, missing target words, or broken grammar patterns (e.g., wrong pattern selected, "will" after unless/in case).
-Keep feedback concise (1 short sentence per item).`;
-
-            const responseSchema = {
-                type: "OBJECT",
-                properties: {
-                    results: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                id: { type: "STRING" },
-                                awarded: { type: "NUMBER" },
-                                maxPts: { type: "NUMBER" },
-                                feedback: { type: "STRING" }
-                            },
-                            required: ["id", "awarded", "maxPts", "feedback"]
-                        }
-                    }
-                },
-                required: ["results"]
-            };
-
-            // Split into 2 compact batches so requests never time out or exceed output limits
-            const batch1 = {
-                definitions: submission.definitions,
-                wordTranslations: submission.wordTranslations,
-                patternSentences: submission.patternSentences,
-                smallWords: submission.smallWords
-            };
-            const batch2 = {
-                ruToEn: submission.ruToEn,
-                enToRu: submission.enToRu
-            };
-
             try {
-                const [res1, res2] = await Promise.all([
-                    callGeminiBatch({
-                        contents: [{ parts: [{ text: `Grade Part 1 & 3 items:\n${JSON.stringify(batch1)}` }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                        generationConfig: { responseMimeType: "application/json", responseSchema }
-                    }),
-                    callGeminiBatch({
-                        contents: [{ parts: [{ text: `Grade Part 2 translation items:\n${JSON.stringify(batch2)}` }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                        generationConfig: { responseMimeType: "application/json", responseSchema }
-                    })
-                ]);
-
-                const combinedResults = [...(res1.results || []), ...(res2.results || [])];
-                applyEvaluationResults({
-                    overallSummary: 'AI evaluation complete! All definitions, patterns, translations, and small words have been reviewed with your non-penalty preferences applied.',
-                    results: combinedResults
-                });
-            } catch (error) {
-                // Seamless fallback if network/API is blocked in sandboxed preview
-                const fallbackEval = runLocalFallbackEvaluation(submission);
-                applyEvaluationResults(fallbackEval);
+                const aiResult = await tryGeminiWithShortTimeout(submission, 6000);
+                if (aiResult && Array.isArray(aiResult.results) && aiResult.results.length > 0) {
+                    applyEvaluationResults(aiResult);
+                } else {
+                    applyEvaluationResults(evaluateDeterministicExam(submission));
+                }
+            } catch (_) {
+                // Silent, zero-error fallback to our comprehensive client-side semantic & grammatical engine
+                applyEvaluationResults(evaluateDeterministicExam(submission));
             } finally {
                 btn.disabled = false;
                 spinner.classList.add('hidden');
@@ -1148,11 +1626,11 @@ Keep feedback concise (1 short sentence per item).`;
                 if (fbBox) {
                     fbBox.classList.remove('hidden');
                     if (clamped === res.maxPts) {
-                        fbBox.className = 'text-xs p-2.5 rounded-lg bg-emerald-950/60 text-emerald-200 border border-emerald-500/30';
+                        fbBox.className = 'text-xs p-3 rounded-lg bg-emerald-950/60 text-emerald-200 border border-emerald-500/30 leading-relaxed';
                     } else if (clamped > 0) {
-                        fbBox.className = 'text-xs p-2.5 rounded-lg bg-amber-950/60 text-amber-200 border border-amber-500/30';
+                        fbBox.className = 'text-xs p-3 rounded-lg bg-amber-950/60 text-amber-200 border border-amber-500/30 leading-relaxed';
                     } else {
-                        fbBox.className = 'text-xs p-2.5 rounded-lg bg-rose-950/60 text-rose-200 border border-rose-500/30';
+                        fbBox.className = 'text-xs p-3 rounded-lg bg-rose-950/60 text-rose-200 border border-rose-500/30 leading-relaxed';
                     }
                     fbBox.innerHTML = `<strong class="text-white">Examiner Feedback:</strong> ${escapeHtml(res.feedback)}`;
                 }
