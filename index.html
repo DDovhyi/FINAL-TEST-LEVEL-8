@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upper-Intermediate: Level Two — Final Exam</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #090d16;
+            color: #f1f5f9;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section-card {
+            transition: all 0.2s ease-in-out;
+        }
+        /* Dark theme date picker icon adjustment */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background-color: #ffffff;
+                color: #0f172a;
+            }
+            .section-card {
+                box-shadow: none !important;
+                border: 1px solid #cbd5e1 !important;
+                background-color: #ffffff !important;
+                color: #0f172a !important;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-indigo-500/30 selection:text-indigo-200">
+
+    <!-- Top Sticky Header -->
+    <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg shadow-black/20">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 rounded-full">
+                        Upper-Intermediate: Level Two
+                    </span>
+                    <span id="exam-status-badge" class="px-2.5 py-0.5 text-xs font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-full">
+                        In Progress
+                    </span>
+                </div>
+                <h1 class="text-lg sm:text-xl font-bold text-slate-100 mt-1 tracking-tight">Comprehensive Final Assessment</h1>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Live Score Display -->
+                <div class="bg-slate-950/90 px-4 py-1.5 rounded-xl border border-slate-800 text-right shadow-inner">
+                    <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Total Score</div>
+                    <div class="text-base sm:text-lg font-extrabold text-indigo-400">
+                        <span id="total-score-val">0</span> <span class="text-slate-500 font-normal text-sm">/ <span id="max-score-val">100</span> pts</span>
+                    </div>
+                </div>
+
+                <button type="button" onclick="window.print()" class="no-print hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-medium text-slate-300 bg-slate-800/80 border border-slate-700 rounded-xl hover:bg-slate-800 hover:text-white transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Print / PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Exam Container -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Candidate Info Card -->
+        <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Student Full Name</label>
+                    <input type="text" id="student-name" placeholder="Enter your name..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Date</label>
+                    <input type="date" id="exam-date" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700/80 text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                </div>
+                <div class="flex items-end">
+                    <div class="w-full p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/25 text-xs text-indigo-200 leading-relaxed">
+                        <strong class="text-indigo-300">Automated AI Grading:</strong> Definitions, pattern usage, and translations are evaluated semantically. Minor typos, missing commas, or lowercase starts are noted without penalty.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 1: VOCABULARY & PATTERNS -->
+        <section class="space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <h2 class="text-xl font-bold text-slate-100 tracking-tight">Part 1. Vocabulary & Sentence Patterns</h2>
+                <span class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">36 Points</span>
+            </div>
+
+            <!-- 1.1 Definitions -->
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-bold text-slate-100">1.1. Word Definitions <span class="text-xs font-normal text-slate-400">(2 pts each — 12 pts)</span></h3>
+                    </div>
+                    <p class="text-sm text-slate-400 mt-1">Write a clear, accurate definition in English for each word or phrase below without using the target word itself.</p>
+                </div>
+
+                <div id="definitions-container" class="space-y-4"></div>
+            </div>
+
+            <!-- 1.2 Word Translation -->
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">1.2. Vocabulary Translation <span class="text-xs font-normal text-slate-400">(1 pt each — 6 pts)</span></h3>
+                    <p class="text-sm text-slate-400 mt-1">Translate each word or phrase accurately.</p>
+                </div>
+
+                <div id="word-translations-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+
+            <!-- 1.3 Sentence Construction with Selected Pattern -->
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">1.3. Sentence Construction & Pattern Selection <span class="text-xs font-normal text-slate-400">(3 pts each — 18 pts)</span></h3>
+                    <p class="text-sm text-slate-400 mt-1">
+                        For each target word below, select one grammatical pattern from the dropdown list and write a complete, natural sentence demonstrating both the word and the chosen pattern.
+                    </p>
+                    <div class="mt-3 p-3.5 rounded-xl bg-slate-950/90 border border-slate-800 text-xs text-slate-300">
+                        <span class="font-semibold text-slate-100">Available Course Patterns:</span>
+                        <ul class="list-disc list-inside mt-1.5 space-y-1 text-slate-400">
+                            <li><strong class="text-slate-200">Ought to:</strong> <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">ought (not) to + V1 / be + V-ing / have + V3</code></li>
+                            <li><strong class="text-slate-200">Complex Object:</strong> <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">verb + object + (to) V1 / V-ing</code> (e.g., <em>want/expect/allow sb to do</em>, <em>make/let sb do</em>, <em>see/hear sb doing/do</em>)</li>
+                            <li><strong class="text-slate-200">Modal Expressions with "be":</strong> <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">be about to / allowed to / bound to / due to / likely to / supposed to</code></li>
+                            <li><strong class="text-slate-200">Inversion:</strong> <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">Seldom / Never / Little / Not only...</code> or <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">Hardly / Barely... when</code>, <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">No sooner... than</code></li>
+                            <li><strong class="text-slate-200">Emphasis:</strong> <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">It is/was ... that/who/which</code> or <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">What ... is/was ...</code></li>
+                            <li><strong class="text-slate-200">Mixed Conditionals:</strong> <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">If + Past Perfect, would + V1</code> (3rd/2nd) or <code class="text-indigo-300 bg-slate-900 px-1.5 py-0.5 rounded">If + Past Simple, would have + V3</code> (2nd/3rd)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="pattern-sentences-container" class="space-y-4"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: SENTENCE TRANSLATION -->
+        <section class="space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <h2 class="text-xl font-bold text-slate-100 tracking-tight">Part 2. Sentence Translation</h2>
+                <span class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">40 Points</span>
+            </div>
+
+            <!-- 2.1 Translate into English -->
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">2.1. Translate into English <span class="text-xs font-normal text-slate-400">(2 pts each — 20 pts)</span></h3>
+                    <p class="text-sm text-slate-400 mt-1">Translate the following 10 sentences using course vocabulary and grammatical patterns.</p>
+                </div>
+
+                <div id="ru-en-container" class="space-y-4"></div>
+            </div>
+
+            <!-- 2.2 Translate into Russian -->
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">2.2. Translate into Russian <span class="text-xs font-normal text-slate-400">(2 pts each — 20 pts)</span></h3>
+                    <p class="text-sm text-slate-400 mt-1">Translate the following 10 sentences accurately, preserving the nuance of the vocabulary and grammar.</p>
+                </div>
+
+                <div id="en-ru-container" class="space-y-4"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: SMALL WORDS -->
+        <section class="space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <h2 class="text-xl font-bold text-slate-100 tracking-tight">Part 3. Small Words in Context</h2>
+                <span class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">12 Points</span>
+            </div>
+
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">3.1. Sentence Production with Small Words <span class="text-xs font-normal text-slate-400">(2 pts each — 12 pts)</span></h3>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Write one clear, grammatically accurate sentence for each distinct small word from the course syllabus.
+                    </p>
+                </div>
+
+                <div id="small-words-container" class="space-y-4"></div>
+            </div>
+        </section>
+
+        <!-- Submit & Automated Evaluation Action Bar -->
+        <div class="no-print section-card bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 text-white rounded-2xl border border-indigo-500/30 p-6 shadow-2xl shadow-black/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-slate-100">Ready to Grade Written Sections (Parts 1–3)?</h3>
+                <p class="text-sm text-slate-300 mt-0.5">
+                    Our AI examiner will verify every definition, pattern match, and translation, noting minor surface slips gently without deducting points for them.
+                </p>
+            </div>
+            <button type="button" id="grade-exam-btn" onclick="gradeWrittenExam()" class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 font-bold text-white shadow-lg shadow-indigo-950/60 border border-indigo-400/30 transition cursor-pointer">
+                <svg id="grade-spinner" class="hidden animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span id="grade-btn-text">Evaluate Written Exam</span>
+            </button>
+        </div>
+
+        <!-- Global Feedback Banner (Hidden until graded) -->
+        <div id="global-feedback-box" class="hidden section-card rounded-2xl border p-5 sm:p-6 shadow-xl"></div>
+
+        <!-- SECTION 4: SPEAKING ASSESSMENT & RUBRIC -->
+        <section class="space-y-6 pt-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <h2 class="text-xl font-bold text-slate-100 tracking-tight">Part 4. Oral Assessment & Examiner Rubric</h2>
+                <span class="text-xs font-semibold px-3 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700">12 Points</span>
+            </div>
+
+            <div class="section-card bg-slate-900 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl shadow-black/20 space-y-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-100">4.1. Speaking Prompts <span class="text-xs font-normal text-slate-400">(1.5–2 minutes per topic)</span></h3>
+                    <p class="text-sm text-slate-400 mt-1">
+                        Speak continuously for <strong class="text-slate-200">90 to 120 seconds</strong> on each of the three prompts below. Support your opinion with a <strong class="text-slate-200">concrete real-life example</strong> and actively integrate course vocabulary and sentence patterns.
+                    </p>
+                </div>
+
+                <div id="speaking-topics-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+
+                <!-- Validated Rubric Table -->
+                <div class="pt-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
+                        4.2. Validated Scoring Scale — Skill: Depth of Elaboration & Example Integration (0–4 pts per topic)
+                    </h4>
+                    <div class="overflow-x-auto rounded-xl border border-slate-800">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-950 text-slate-300 border-b border-slate-800">
+                                    <th class="p-3.5 font-bold w-20">Band</th>
+                                    <th class="p-3.5 font-bold w-48">Proficiency Level</th>
+                                    <th class="p-3.5 font-bold">Descriptor & Assessment Criteria</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/80 text-slate-300">
+                                <tr class="bg-emerald-950/25">
+                                    <td class="p-3.5 font-extrabold text-emerald-400">4 pts</td>
+                                    <td class="p-3.5 font-semibold text-slate-100">Exemplary<br><span class="text-xs font-normal text-slate-400">Confident Upper-Intermediate</span></td>
+                                    <td class="p-3.5">Directly addresses all parts of the prompt; presents a clear thesis and <strong class="text-slate-100">thoroughly develops a concrete example</strong> (specific context, details, outcome, and takeaway); sustains the 1.5–2 min timeframe smoothly without filler; naturally integrates course vocabulary and complex patterns.</td>
+                                </tr>
+                                <tr class="bg-slate-900/60">
+                                    <td class="p-3.5 font-extrabold text-indigo-400">3 pts</td>
+                                    <td class="p-3.5 font-semibold text-slate-100">Proficient<br><span class="text-xs font-normal text-slate-400">Solid Upper-Intermediate</span></td>
+                                    <td class="p-3.5">Addresses the prompt relevantly; provides a <strong class="text-slate-100">specific example</strong>, though elaboration lacks some depth or a clear concluding takeaway; minor hesitation while searching for words, but overall coherence and timeframe are maintained.</td>
+                                </tr>
+                                <tr class="bg-amber-950/20">
+                                    <td class="p-3.5 font-extrabold text-amber-400">2 pts</td>
+                                    <td class="p-3.5 font-semibold text-slate-100">Developing<br><span class="text-xs font-normal text-slate-400">Unstable / Basic</span></td>
+                                    <td class="p-3.5">Relies on generalizations or surface-level narration without analysis; the example is vague, overly brief, or weakly connected to the main point; noticeable pauses require examiner prompting to reach the time limit.</td>
+                                </tr>
+                                <tr class="bg-rose-950/20">
+                                    <td class="p-3.5 font-extrabold text-rose-400">1 pt</td>
+                                    <td class="p-3.5 font-semibold text-slate-100">Insufficient<br><span class="text-xs font-normal text-slate-400">Below Target</span></td>
+                                    <td class="p-3.5">Fails to develop the topic or goes off-tangent; no concrete example is given; speech is fragmented and falls well short of the required duration even with examiner support.</td>
+                                </tr>
+                                <tr class="bg-slate-950/40">
+                                    <td class="p-3.5 font-extrabold text-slate-500">0 pts</td>
+                                    <td class="p-3.5 font-semibold text-slate-400">No Response</td>
+                                    <td class="p-3.5 text-slate-500">No attempt made or unintelligible response.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Custom Modal / Message Box -->
+    <div id="message-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-xs p-4">
+        <div class="bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-700 space-y-4">
+            <h3 id="modal-title" class="text-lg font-bold text-slate-100">Notice</h3>
+            <p id="modal-body" class="text-sm text-slate-300 leading-relaxed"></p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition cursor-pointer">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set default today's date
+        document.getElementById('exam-date').valueAsDate = new Date();
+
+        // ==================== EXAM DATA ====================
+        const EXAM_DATA = {
+            definitions: [
+                {
+                    id: 'def_1',
+                    word: 'dishwasher',
+                    topic: 'Appliances',
+                    maxPts: 2,
+                    reference: 'A kitchen appliance/machine that washes plates, glasses, cutlery, and pans automatically.'
+                },
+                {
+                    id: 'def_2',
+                    word: 'knead (dough)',
+                    topic: 'Cookery',
+                    maxPts: 2,
+                    reference: 'To press, fold, and stretch dough with your hands so it becomes smooth and elastic before baking.'
+                },
+                {
+                    id: 'def_3',
+                    word: 'overcome difficulties / obstacles',
+                    topic: 'Success and failure',
+                    maxPts: 2,
+                    reference: 'To successfully deal with and get past problems, barriers, or hard situations that block progress.'
+                },
+                {
+                    id: 'def_4',
+                    word: 'deforestation',
+                    topic: 'Environment',
+                    maxPts: 2,
+                    reference: 'Cutting down or clearing away large areas of forests or trees, often for farming, timber, or building.'
+                },
+                {
+                    id: 'def_5',
+                    word: 'embezzlement',
+                    topic: 'Crime',
+                    maxPts: 2,
+                    reference: 'Stealing or misappropriating money or property that someone was trusted to manage or look after.'
+                },
+                {
+                    id: 'def_6',
+                    word: 'gorgeous',
+                    topic: 'Words instead of "very ___"',
+                    maxPts: 2,
+                    reference: 'Extremely attractive, beautiful, or pleasant.'
+                }
+            ],
+            wordTranslations: [
+                {
+                    id: 'wt_1',
+                    prompt: 'pavement',
+                    topic: 'American / British English',
+                    direction: 'EN → RU',
+                    maxPts: 1,
+                    accepted: ['тротуар']
+                },
+                {
+                    id: 'wt_2',
+                    prompt: 'выполнять обязанность, обязательство',
+                    topic: 'Success and failure',
+                    direction: 'RU → EN',
+                    maxPts: 1,
+                    accepted: ['fulfil an obligation', 'fulfill an obligation', 'fulfil obligations', 'fulfill obligations']
+                },
+                {
+                    id: 'wt_3',
+                    prompt: 'shiver / tremble',
+                    topic: 'What your body does',
+                    direction: 'EN → RU',
+                    maxPts: 1,
+                    accepted: ['дрожать', 'трястись', 'дрожать, трястись']
+                },
+                {
+                    id: 'wt_4',
+                    prompt: 'constituency',
+                    topic: 'Politics',
+                    direction: 'EN → RU',
+                    maxPts: 1,
+                    accepted: ['избирательный округ', 'округ']
+                },
+                {
+                    id: 'wt_5',
+                    prompt: 'зарядное устройство',
+                    topic: 'Appliances',
+                    direction: 'RU → EN',
+                    maxPts: 1,
+                    accepted: ['charger', 'phone charger', 'a charger', 'a phone charger']
+                },
+                {
+                    id: 'wt_6',
+                    prompt: 'offence / offender',
+                    topic: 'Law',
+                    direction: 'EN → RU',
+                    maxPts: 1,
+                    accepted: ['правонарушение / нарушитель', 'правонарушение и нарушитель', 'правонарушение, нарушитель', 'преступление / преступник']
+                }
+            ],
+            patternsList: [
+                'Ought (not) to + V1 / be V-ing / have V3',
+                'Complex Object (with "to" / without "to" / V-ing)',
+                'Modal expressions with "be" (about/allowed/bound/due/likely/supposed to)',
+                'Inversion (Seldom/Never/Little/Not only/Hardly/No sooner...)',
+                'Emphasis (It is/was ... that/who OR What ... is/was ...)',
+                'Mixed Conditionals (3rd/2nd OR 2nd/3rd)'
+            ],
+            patternSentences: [
+                { id: 'ps_1', word: 'multicooker', topic: 'Appliances', maxPts: 3 },
+                { id: 'ps_2', word: 'accomplish (the task)', topic: 'Success and failure', maxPts: 3 },
+                { id: 'ps_3', word: 'renewable energy', topic: 'Environment', maxPts: 3 },
+                { id: 'ps_4', word: 'witness', topic: 'Law', maxPts: 3 },
+                { id: 'ps_5', word: 'stifling', topic: 'Weather forecast', maxPts: 3 },
+                { id: 'ps_6', word: 'yawn', topic: 'What your body does', maxPts: 3 }
+            ],
+            ruToEn: [
+                {
+                    id: 're_1',
+                    source: 'Нам следовало бы быть более внимательными, когда мы скачивали это обновление, но мы не проверили настройки.',
+                    reference: 'We ought to have been more careful when we downloaded that update, but we didn’t check the settings.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_2',
+                    source: 'Нечасто бывает так, что кандидату удаётся достичь компромисса с оппозицией до выборов.',
+                    reference: 'Seldom does a candidate manage to reach a compromise with the opposition before the election.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_3',
+                    source: 'Именно из-за вырубки лесов и выхлопных газов уровень загрязнения воздуха в городе стал таким высоким.',
+                    reference: 'It is because of deforestation and exhaust fumes that the level of air pollution in the city has become so high.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_4',
+                    source: 'Если бы я был более предусмотрительным в прошлом месяце, я бы не потерял важный файл из-за сбоя системы.',
+                    reference: 'If I had been more prudent last month, I wouldn’t have lost an important file because of a bug / system crash.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_5',
+                    source: 'Ожидается, что новый закон о защите окружающей среды вступит в силу в следующем месяце.',
+                    reference: 'The new environmental protection law is due to come into force next month.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_6',
+                    source: 'Судья заставил свидетеля повторить свои показания, потому что в зале суда было слишком шумно.',
+                    reference: 'The judge made the witness repeat his testimony because it was too noisy in court.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_7',
+                    source: 'Не успели мы выйти из дома, как начался проливной дождь с градом.',
+                    reference: 'No sooner had we left the house than torrential rain with hail started. / Hardly had we left the house when torrential rain and hail began.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_8',
+                    source: 'Что меня действительно поразило, так это её способность сохранять хладнокровие и справляться с препятствиями.',
+                    reference: 'What really impressed me was her ability to stay calm and cope with obstacles.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_9',
+                    source: 'Подозреваемого, скорее всего, приговорят к общественным работам, поскольку это его первое правонарушение.',
+                    reference: 'The suspect is likely to be sentenced to community service since it is his first offence.',
+                    maxPts: 2
+                },
+                {
+                    id: 're_10',
+                    source: 'Если бы она не была такой вспыльчивой, она бы не накричала на своего коллегу вчера на совещании.',
+                    reference: 'If she weren’t so short-tempered, she wouldn’t have yelled at her colleague at the meeting yesterday.',
+                    maxPts: 2
+                }
+            ],
+            enToRu: [
+                {
+                    id: 'er_1',
+                    source: 'What annoyed me most was that he didn’t even apologize after spilling coffee on my laptop.',
+                    reference: 'Больше всего меня разозлило то, что он даже не извинился после того, как пролил кофе на мой ноутбук.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_2',
+                    source: 'No sooner had the chef grated the cheese and chopped the herbs than the guests started arriving.',
+                    reference: 'Не успел шеф-повар натереть сыр и нашинковать зелень, как начали приходить гости.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_3',
+                    source: 'We saw the burglar climbing over the fence while the neighbors were away.',
+                    reference: 'Мы видели, как взломщик перелезал через забор, пока соседей не было дома.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_4',
+                    source: 'He is bound to be promoted because he always fulfills his obligations on time.',
+                    reference: 'Его непременно повысят, потому что он всегда вовремя выполняет свои обязательства.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_5',
+                    source: 'Little did the voters realize that the politician had been involved in bribery and fraud.',
+                    reference: 'Избиратели даже не подозревали, что этот политик был замешан во взяточничестве и мошенничестве.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_6',
+                    source: 'You ought not to have turned off notifications if you were expecting an urgent attachment.',
+                    reference: 'Тебе не следовало отключать уведомления, если ты ждал срочное вложение.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_7',
+                    source: 'If we hadn’t invested in solar energy five years ago, our electricity bills would be appalling now.',
+                    reference: 'Если бы мы не вложились в солнечную энергию пять лет назад, наши счета за электричество сейчас были бы ужасающими.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_8',
+                    source: 'The flight was supposed to take off at noon, but a severe blizzard forced the airport to cancel all departures.',
+                    reference: 'Рейс должен был вылететь в полдень, но сильная метель вынудила аэропорт отменить все вылеты.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_9',
+                    source: 'It was the embassy that provided the citizens with legal assistance after their passports were stolen by a pickpocket.',
+                    reference: 'Именно посольство оказало гражданам юридическую помощь после того, как их паспорта украл карманник.',
+                    maxPts: 2
+                },
+                {
+                    id: 'er_10',
+                    source: 'The defense attorney expects the jury to pass a verdict of not guilty due to a lack of reliable evidence.',
+                    reference: 'Адвокат защиты ожидает, что присяжные вынесут оправдательный вердикт (вердикт «невиновен») из-за нехватки надёжных улик.',
+                    maxPts: 2
+                }
+            ],
+            smallWords: [
+                {
+                    id: 'sw_1',
+                    word: 'although',
+                    note: 'Concession / contrast (covers although / even though / though)',
+                    maxPts: 2
+                },
+                {
+                    id: 'sw_2',
+                    word: 'quite',
+                    note: 'Degree modifier before adjectives/adverbs or "a/an" (covers quite / rather / pretty)',
+                    maxPts: 2
+                },
+                {
+                    id: 'sw_3',
+                    word: 'despite',
+                    note: 'Preposition of contrast followed by noun/gerund/the fact that (covers despite / in spite of)',
+                    maxPts: 2
+                },
+                {
+                    id: 'sw_4',
+                    word: 'in case',
+                    note: 'Precaution / preparation for a possible future situation (no "will" after it)',
+                    maxPts: 2
+                },
+                {
+                    id: 'sw_5',
+                    word: 'unless',
+                    note: 'Conditional meaning "except if" / "if ... not" (no "will" after it)',
+                    maxPts: 2
+                },
+                {
+                    id: 'sw_6',
+                    word: 'though (at the end of a sentence)',
+                    note: 'Spoken contrast marker placed at the end of a clause',
+                    maxPts: 2
+                }
+            ],
+            speakingTopics: [
+                {
+                    id: 'sp_1',
+                    title: 'Topic 1: Smart Living & Everyday Appliances',
+                    prompt: 'Which household appliances or digital tools genuinely simplify your daily routine, and which ones create unnecessary hassle? Support your answer with a concrete example of a time when technology either saved your day or failed you at a crucial moment.'
+                },
+                {
+                    id: 'sp_2',
+                    title: 'Topic 2: Setbacks, Resilience & Lessons Learned',
+                    prompt: 'Describe a situation when a plan fell through or a task turned out to be much more complicated than expected. What specifically helped you cope with the obstacles, and what would you do differently if you faced the same challenge again?'
+                },
+                {
+                    id: 'sp_3',
+                    title: 'Topic 3: Rules, Compromises & Responsibility',
+                    prompt: 'Think of a situation at work, in your studies, or in everyday life where you had to balance strict rules, personal convenience, and reaching a compromise with others. What decision did you make, and why was it justified?'
+                }
+            ]
+        };
+
+        // Track scores per section
+        let writtenScore = 0;
+        let speakingScores = { sp_1: 0, sp_2: 0, sp_3: 0 };
+        let timers = {};
+
+        // ==================== RENDER FUNCTIONS ====================
+        function initExamUI() {
+            // 1.1 Definitions
+            const defContainer = document.getElementById('definitions-container');
+            defContainer.innerHTML = EXAM_DATA.definitions.map((item, idx) => `
+                <div class="p-4 rounded-xl bg-slate-950/75 border border-slate-800 space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-500">#${idx + 1}</span>
+                            <span class="font-bold text-slate-100 text-base">${item.word}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 font-medium">${item.topic}</span>
+                        </div>
+                        <span id="score-${item.id}" class="text-xs font-bold text-slate-500">0 / ${item.maxPts} pts</span>
+                    </div>
+                    <input type="text" id="input-${item.id}" placeholder="Write a clear definition in English..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+            `).join('');
+
+            // 1.2 Word Translations
+            const wtContainer = document.getElementById('word-translations-container');
+            wtContainer.innerHTML = EXAM_DATA.wordTranslations.map((item, idx) => `
+                <div class="p-4 rounded-xl bg-slate-950/75 border border-slate-800 space-y-2.5">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-slate-500 mr-1">#${idx + 1}</span>
+                            <span class="font-bold text-slate-100 text-sm">${item.prompt}</span>
+                            <span class="ml-1.5 text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-medium">${item.topic}</span>
+                        </div>
+                        <span id="score-${item.id}" class="text-xs font-bold text-slate-500 shrink-0">0 / ${item.maxPts} pt</span>
+                    </div>
+                    <input type="text" id="input-${item.id}" placeholder="Your translation..." class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    <div id="fb-${item.id}" class="hidden text-xs p-2 rounded-lg"></div>
+                </div>
+            `).join('');
+
+            // 1.3 Pattern Sentences
+            const psContainer = document.getElementById('pattern-sentences-container');
+            const optionsHtml = `<option value="">-- Select a pattern from the list --</option>` +
+                EXAM_DATA.patternsList.map(p => `<option value="${p}">${p}</option>`).join('');
+
+            psContainer.innerHTML = EXAM_DATA.patternSentences.map((item, idx) => `
+                <div class="p-4 rounded-xl bg-slate-950/75 border border-slate-800 space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-500">#${idx + 1}</span>
+                            <span class="font-bold text-slate-100 text-base">${item.word}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 font-medium">${item.topic}</span>
+                        </div>
+                        <span id="score-${item.id}" class="text-xs font-bold text-slate-500">0 / ${item.maxPts} pts</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <select id="select-${item.id}" class="sm:col-span-1 px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-medium text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                            ${optionsHtml}
+                        </select>
+                        <input type="text" id="input-${item.id}" placeholder="Write your sentence using '${item.word}' and the selected pattern..." class="sm:col-span-2 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+            `).join('');
+
+            // 2.1 RU -> EN
+            const reContainer = document.getElementById('ru-en-container');
+            reContainer.innerHTML = EXAM_DATA.ruToEn.map((item, idx) => `
+                <div class="p-4 rounded-xl bg-slate-950/75 border border-slate-800 space-y-2.5">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="text-sm font-medium text-slate-200 leading-relaxed"><span class="text-xs font-bold text-slate-500 mr-1.5">${idx + 1}.</span>${item.source}</p>
+                        <span id="score-${item.id}" class="text-xs font-bold text-slate-500 shrink-0">0 / ${item.maxPts} pts</span>
+                    </div>
+                    <textarea id="input-${item.id}" rows="2" placeholder="Write your English translation..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition"></textarea>
+                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+            `).join('');
+
+            // 2.2 EN -> RU
+            const erContainer = document.getElementById('en-ru-container');
+            erContainer.innerHTML = EXAM_DATA.enToRu.map((item, idx) => `
+                <div class="p-4 rounded-xl bg-slate-950/75 border border-slate-800 space-y-2.5">
+                    <div class="flex items-start justify-between gap-3">
+                        <p class="text-sm font-medium text-slate-200 leading-relaxed"><span class="text-xs font-bold text-slate-500 mr-1.5">${idx + 1}.</span>${item.source}</p>
+                        <span id="score-${item.id}" class="text-xs font-bold text-slate-500 shrink-0">0 / ${item.maxPts} pts</span>
+                    </div>
+                    <textarea id="input-${item.id}" rows="2" placeholder="Write your translation..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none transition"></textarea>
+                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+            `).join('');
+
+            // 3.1 Small Words
+            const swContainer = document.getElementById('small-words-container');
+            swContainer.innerHTML = EXAM_DATA.smallWords.map((item, idx) => `
+                <div class="p-4 rounded-xl bg-slate-950/75 border border-slate-800 space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <span class="text-xs font-bold text-slate-500 mr-1">#${idx + 1}</span>
+                            <span class="font-bold text-indigo-400 text-base">${item.word}</span>
+                            <span class="ml-2 text-xs text-slate-400">— ${item.note}</span>
+                        </div>
+                        <span id="score-${item.id}" class="text-xs font-bold text-slate-500">0 / ${item.maxPts} pts</span>
+                    </div>
+                    <input type="text" id="input-${item.id}" placeholder="Compose a sentence using '${item.word}'..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-slate-100 placeholder-slate-500 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    <div id="fb-${item.id}" class="hidden text-xs p-2.5 rounded-lg"></div>
+                </div>
+            `).join('');
+
+            // 4.1 Speaking Topics with Built-in Timer & Examiner Band Selector
+            const spContainer = document.getElementById('speaking-topics-container');
+            spContainer.innerHTML = EXAM_DATA.speakingTopics.map((item) => `
+                <div class="flex flex-col justify-between p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-4">
+                    <div class="space-y-2">
+                        <h4 class="font-bold text-slate-100 text-sm">${item.title}</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed">${item.prompt}</p>
+                    </div>
+
+                    <div class="space-y-3 pt-3 border-t border-slate-800/80">
+                        <!-- Countdown Timer (2:00) -->
+                        <div class="flex items-center justify-between bg-slate-900 px-3 py-2 rounded-xl border border-slate-800">
+                            <span id="timer-${item.id}" class="mono text-sm font-bold text-slate-200">02:00</span>
+                            <div class="flex items-center gap-1.5 no-print">
+                                <button onclick="toggleTimer('${item.id}')" id="timer-btn-${item.id}" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition cursor-pointer">Start</button>
+                                <button onclick="resetTimer('${item.id}')" class="px-2 py-1 text-xs font-medium rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">Reset</button>
+                            </div>
+                        </div>
+
+                        <!-- Examiner Score Selector -->
+                        <div>
+                            <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Examiner Rubric Band (0–4)</label>
+                            <select onchange="updateSpeakingScore('${item.id}', this.value)" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/80 text-xs font-semibold text-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="0">0 pts — Not graded yet</option>
+                                <option value="4">4 pts — Exemplary (Thorough example + fluency)</option>
+                                <option value="3">3 pts — Proficient (Clear example, minor gaps)</option>
+                                <option value="2">2 pts — Developing (Brief/vague example)</option>
+                                <option value="1">1 pt — Insufficient (No example / off-topic)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== TIMER LOGIC ====================
+        function toggleTimer(id) {
+            const btn = document.getElementById(`timer-btn-${id}`);
+            const display = document.getElementById(`timer-${id}`);
+
+            if (timers[id] && timers[id].interval) {
+                clearInterval(timers[id].interval);
+                timers[id].interval = null;
+                btn.textContent = 'Resume';
+                btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition cursor-pointer';
+                return;
+            }
+
+            if (!timers[id]) {
+                timers[id] = { remaining: 120, interval: null };
+            }
+
+            btn.textContent = 'Pause';
+            btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition cursor-pointer';
+
+            timers[id].interval = setInterval(() => {
+                timers[id].remaining--;
+                if (timers[id].remaining <= 0) {
+                    clearInterval(timers[id].interval);
+                    timers[id].interval = null;
+                    timers[id].remaining = 0;
+                    display.textContent = '00:00';
+                    display.classList.add('text-rose-400');
+                    btn.textContent = 'Done';
+                    return;
+                }
+                const mins = String(Math.floor(timers[id].remaining / 60)).padStart(2, '0');
+                const secs = String(timers[id].remaining % 60).padStart(2, '0');
+                display.textContent = `${mins}:${secs}`;
+                if (timers[id].remaining <= 30) {
+                    display.classList.add('text-emerald-400');
+                }
+            }, 1000);
+        }
+
+        function resetTimer(id) {
+            if (timers[id] && timers[id].interval) {
+                clearInterval(timers[id].interval);
+            }
+            timers[id] = { remaining: 120, interval: null };
+            const display = document.getElementById(`timer-${id}`);
+            const btn = document.getElementById(`timer-btn-${id}`);
+            display.textContent = '02:00';
+            display.classList.remove('text-rose-400', 'text-emerald-400');
+            btn.textContent = 'Start';
+            btn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-500/30 transition cursor-pointer';
+        }
+
+        function updateSpeakingScore(id, val) {
+            speakingScores[id] = parseInt(val, 10) || 0;
+            refreshTotalScore();
+        }
+
+        function refreshTotalScore() {
+            const spTotal = Object.values(speakingScores).reduce((a, b) => a + b, 0);
+            const total = +(writtenScore + spTotal).toFixed(1);
+            document.getElementById('total-score-val').textContent = total;
+        }
+
+        // ==================== MODAL HELPER ====================
+        function showModal(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = message;
+            const modal = document.getElementById('message-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('message-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // ==================== AI GRADING ENGINE ====================
+        async function callGeminiWithRetry(payload, maxRetries = 4) {
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            let delay = 1000;
+            for (let attempt = 0; attempt <= maxRetries; attempt++) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error('Empty model response');
+                    return JSON.parse(text);
+                } catch (err) {
+                    if (attempt === maxRetries) throw err;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function gradeWrittenExam() {
+            const btn = document.getElementById('grade-exam-btn');
+            const spinner = document.getElementById('grade-spinner');
+            const btnText = document.getElementById('grade-btn-text');
+
+            // Collect all student answers
+            const submission = {
+                definitions: EXAM_DATA.definitions.map(d => ({
+                    id: d.id,
+                    targetWord: d.word,
+                    referenceDefinition: d.reference,
+                    maxPts: d.maxPts,
+                    studentAnswer: document.getElementById(`input-${d.id}`).value.trim()
+                })),
+                wordTranslations: EXAM_DATA.wordTranslations.map(w => ({
+                    id: w.id,
+                    prompt: w.prompt,
+                    acceptedAnswers: w.accepted,
+                    maxPts: w.maxPts,
+                    studentAnswer: document.getElementById(`input-${w.id}`).value.trim()
+                })),
+                patternSentences: EXAM_DATA.patternSentences.map(p => ({
+                    id: p.id,
+                    targetWord: p.word,
+                    selectedPattern: document.getElementById(`select-${p.id}`).value,
+                    maxPts: p.maxPts,
+                    studentSentence: document.getElementById(`input-${p.id}`).value.trim()
+                })),
+                ruToEn: EXAM_DATA.ruToEn.map(r => ({
+                    id: r.id,
+                    sourceRussian: r.source,
+                    referenceEnglish: r.reference,
+                    maxPts: r.maxPts,
+                    studentTranslation: document.getElementById(`input-${r.id}`).value.trim()
+                })),
+                enToRu: EXAM_DATA.enToRu.map(e => ({
+                    id: e.id,
+                    sourceEnglish: e.source,
+                    referenceRussian: e.reference,
+                    maxPts: e.maxPts,
+                    studentTranslation: document.getElementById(`input-${e.id}`).value.trim()
+                })),
+                smallWords: EXAM_DATA.smallWords.map(s => ({
+                    id: s.id,
+                    smallWord: s.word,
+                    grammarRule: s.note,
+                    maxPts: s.maxPts,
+                    studentSentence: document.getElementById(`input-${s.id}`).value.trim()
+                }))
+            };
+
+            // Lock UI
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            btnText.textContent = 'Evaluating Answers...';
+
+            const systemPrompt = `You are a supportive, fair, expert Upper-Intermediate English examiner. Evaluate the student's written exam submission.
+
+CRITICAL LENIENCY & NON-PENALTY RULES (STRICTLY FOLLOW):
+- DO NOT deduct points for lowercase letters at the start of sentences or words (UNLESS it is a proper noun, personal name, country/city name, or specific title).
+- DO NOT deduct points for missing or misplaced commas/punctuation.
+- DO NOT deduct points for minor spelling typos or missing letters in a word as long as the intended word is clearly recognizable and attempts the right target vocabulary.
+- DO NOT deduct points in Definitions if the explanation is phrased simply or imperfectly, provided the core meaning is understandable and reasonably accurate.
+- IMPORTANT: Whenever you notice lowercase letters, missing commas, minor typos/missing letters, or slightly rough phrasing in a definition, you MUST still gently mention/point them out in your feedback note so the student learns from them, while awarding FULL CREDIT (0 points deducted for those surface slips).
+
+Rules for scoring and deducting points ONLY for genuine meaning/structure errors (use increments of 0.5 pts):
+1. Definitions (0 to 2 pts): Award full 2 pts if the core meaning is conveyed reasonably well, even if phrased imperfectly or with minor typos/punctuation issues (just note the polish tip in feedback). Deduct 0.5–1 pt ONLY if the meaning is genuinely inaccurate, misleading, or circularly repeats the target word; 0 pts if completely wrong or blank.
+2. Word Translations (0 to 1 pt): 1 pt if accurate (ignore missing letters/typos/capitalization if recognizable, just note the spelling); 0.5 pt if partially close in meaning; 0 pts if wrong or blank.
+3. Pattern Sentences (0 to 3 pts): Check BOTH whether the selectedPattern is actually used structurally in the sentence AND whether the targetWord is used with the right meaning. Ignore typos, lowercase starts, and missing commas (note them without deducting). Deduct 1.5 pts if the selected pattern is missing or mismatched; deduct 0.5–1 pt ONLY for major grammar/structural mistakes that break the pattern; 0 pts if blank or completely wrong.
+4. Translations RU->EN & EN->RU (0 to 2 pts each): Check semantic accuracy, target vocabulary meaning, and core grammatical structure (e.g., Inversion, Complex Object, Mixed Conditionals, Emphasis, Ought to, Modal be-expressions). Ignore missing commas, lowercase letters, and recognizable spelling typos (mention them gently in feedback with NO point deduction). Deduct 0.5–1.5 pts ONLY if a key word or core grammatical pattern is mistranslated or omitted; 0 pts if blank or unintelligible.
+5. Small Words (0 to 2 pts each): Verify the target small word is used with its exact grammatical constraint (e.g., no "will" after "unless" or "in case"; noun/gerund/"the fact that" after "despite"; "quite" before "a/an"; "though" at the end of a spoken contrast sentence). Ignore typos, lowercase starts, and missing commas (note them without deducting). Deduct 1 pt ONLY for structural misuse of the small word (like "unless it will rain"); deduct 0.5 pt for major clause grammar errors.
+
+Provide concise, encouraging feedback in English for every item. If full points are awarded despite minor typos, lowercase letters, missing commas, or rough phrasing, explicitly note those small polish points in the feedback while confirming no points were deducted for them.`;
+
+            const payload = {
+                contents: [{
+                    parts: [{
+                        text: `Evaluate this Upper-Intermediate exam JSON and return structured per-item scores and feedback:\n${JSON.stringify(submission)}`
+                    }]
+                }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            overallSummary: { type: "STRING" },
+                            results: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        id: { type: "STRING" },
+                                        awarded: { type: "NUMBER" },
+                                        maxPts: { type: "NUMBER" },
+                                        feedback: { type: "STRING" }
+                                    },
+                                    required: ["id", "awarded", "maxPts", "feedback"]
+                                }
+                            }
+                        },
+                        required: ["overallSummary", "results"]
+                    }
+                }
+            };
+
+            try {
+                const evaluation = await callGeminiWithRetry(payload);
+                applyEvaluationResults(evaluation);
+            } catch (error) {
+                console.error(error);
+                showModal(
+                    'Evaluation Error',
+                    'We could not complete the automated grading request right now. Please check your connection and try clicking "Evaluate Written Exam" again.'
+                );
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                btnText.textContent = 'Re-Evaluate Written Exam';
+            }
+        }
+
+        function applyEvaluationResults(evaluation) {
+            let sumWritten = 0;
+
+            evaluation.results.forEach(res => {
+                const clamped = Math.max(0, Math.min(res.maxPts, res.awarded));
+                sumWritten += clamped;
+
+                const scoreBadge = document.getElementById(`score-${res.id}`);
+                const fbBox = document.getElementById(`fb-${res.id}`);
+
+                if (scoreBadge) {
+                    scoreBadge.textContent = `${clamped} / ${res.maxPts} pts`;
+                    scoreBadge.className = 'text-xs font-bold shrink-0 ' + (
+                        clamped === res.maxPts ? 'text-emerald-400' :
+                        clamped > 0 ? 'text-amber-400' : 'text-rose-400'
+                    );
+                }
+
+                if (fbBox) {
+                    fbBox.classList.remove('hidden');
+                    if (clamped === res.maxPts) {
+                        fbBox.className = 'text-xs p-2.5 rounded-lg bg-emerald-950/60 text-emerald-200 border border-emerald-500/30';
+                    } else if (clamped > 0) {
+                        fbBox.className = 'text-xs p-2.5 rounded-lg bg-amber-950/60 text-amber-200 border border-amber-500/30';
+                    } else {
+                        fbBox.className = 'text-xs p-2.5 rounded-lg bg-rose-950/60 text-rose-200 border border-rose-500/30';
+                    }
+                    fbBox.innerHTML = `<strong class="text-white">Examiner Feedback:</strong> ${escapeHtml(res.feedback)}`;
+                }
+            });
+
+            writtenScore = +sumWritten.toFixed(1);
+            refreshTotalScore();
+
+            // Update status badge & summary banner
+            const statusBadge = document.getElementById('exam-status-badge');
+            statusBadge.textContent = 'Written Sections Graded';
+            statusBadge.className = 'px-2.5 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-full';
+
+            const globalBox = document.getElementById('global-feedback-box');
+            globalBox.classList.remove('hidden');
+            globalBox.className = 'section-card rounded-2xl border border-indigo-500/30 bg-indigo-950/50 p-5 sm:p-6 shadow-xl space-y-2';
+            globalBox.innerHTML = `
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h4 class="font-bold text-indigo-200 text-base">Written Assessment Summary (${writtenScore} / 88 pts)</h4>
+                    <span class="text-xs font-semibold text-indigo-300">Complete Part 4 below for final 100-pt score</span>
+                </div>
+                <p class="text-sm text-slate-300 leading-relaxed">${escapeHtml(evaluation.overallSummary)}</p>
+            `;
+
+            globalBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Initialize UI on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initExamUI);
+        } else {
+            initExamUI();
+        }
+    </script>
+</body>
+</html>
