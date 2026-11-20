@@ -1209,6 +1209,28 @@
             return notes.length ? ` (Hint: ${notes.join('; ')} — no points deducted.)` : '';
         }
 
+        // Verify that a sentence is a complete, meaningful B2-level clause/sentence rather than a 3-4 word fragment
+        function evaluateSentenceCompleteness(rawSentence, normSentence, tokens) {
+            const meaningfulTokens = tokens.filter(t => !STOP_WORDS_EN.has(t));
+            const hasVerb = /\b(am|is|are|was|were|be|been|have|has|had|do|does|did|can|could|will|would|shall|should|may|might|must|ought|\w+ed|\w+ing|\w+s)\b/.test(normSentence);
+
+            if (!hasVerb || tokens.length < 6 || meaningfulTokens.length < 3) {
+                return {
+                    status: 'fragment',
+                    reason: 'This looks like a short fragment or incomplete phrase without context rather than a full Upper-Intermediate (B2) sentence.'
+                };
+            }
+
+            if (tokens.length < 8 || meaningfulTokens.length < 4) {
+                return {
+                    status: 'minimal',
+                    reason: 'The sentence is too brief and lacks Upper-Intermediate (B2) context/development.'
+                };
+            }
+
+            return { status: 'complete' };
+        }
+
         function verifySelectedPattern(patternLabel, rawSentence, normSentence) {
             if (!patternLabel) {
                 return { ok: false, reason: 'No grammatical pattern was selected from the dropdown list.' };
@@ -1526,15 +1548,32 @@
                     }
                 }
                 const patternCheck = verifySelectedPattern(selectedPattern, raw, norm);
+                const completeness = evaluateSentenceCompleteness(raw, norm, tokens);
                 const gentleNote = buildGentleNotes(raw, typos, true);
 
                 if (hasTargetWord && patternCheck.ok) {
-                    results.push({
-                        id: ps.id,
-                        awarded: ps.maxPts,
-                        maxPts: ps.maxPts,
-                        feedback: `Excellent! Both "${ps.word}" and the selected pattern are used accurately.${gentleNote}`
-                    });
+                    if (completeness.status === 'fragment') {
+                        results.push({
+                            id: ps.id,
+                            awarded: 0.5,
+                            maxPts: ps.maxPts,
+                            feedback: `Fragment / incomplete context: ${completeness.reason} Capped at 0.5 pts.${gentleNote} Example: "${ps.sample}"`
+                        });
+                    } else if (completeness.status === 'minimal') {
+                        results.push({
+                            id: ps.id,
+                            awarded: 1.5,
+                            maxPts: ps.maxPts,
+                            feedback: `Target word and pattern are present, but the sentence is too short and lacks B2-level context (deducted 1.5 pts).${gentleNote} Example: "${ps.sample}"`
+                        });
+                    } else {
+                        results.push({
+                            id: ps.id,
+                            awarded: ps.maxPts,
+                            maxPts: ps.maxPts,
+                            feedback: `Well-developed B2 sentence using both "${ps.word}" and the selected pattern accurately.${gentleNote}`
+                        });
+                    }
                 } else if (!selectedPattern && hasTargetWord) {
                     results.push({
                         id: ps.id,
@@ -1626,6 +1665,16 @@
                     };
                 }
 
+                // Prevent short 3-4 word fragments from scoring above 0.5 pts on full-sentence translations
+                if (tokens.length < 6) {
+                    return {
+                        id: item.id,
+                        awarded: 0.5,
+                        maxPts: item.maxPts,
+                        feedback: `Incomplete sentence fragment — translate the entire sentence in full context (capped at 0.5 pts).${gentleNote} Model: "${item.reference}"`
+                    };
+                }
+
                 let awarded = 0;
                 let verdict = '';
                 if (ratio >= 0.72) {
@@ -1710,6 +1759,7 @@
                 }
 
                 const gentleNote = buildGentleNotes(raw, matchRes.typoWord ? [matchRes.typoWord] : [], true);
+                const completeness = evaluateSentenceCompleteness(raw, norm, tokens);
 
                 // Rule 1: Never "despite of"
                 if (sw.id === 'sw_3' && /\bdespite\s+of\b/.test(norm)) {
@@ -1744,11 +1794,35 @@
                     return;
                 }
 
+                // Rule 4: Multi-clause / complex sentence requirement for B2 connectors (although, despite, in case, unless, end-position though)
+                const requiresTwoClauses = ['sw_1', 'sw_3', 'sw_4', 'sw_5', 'sw_6'].includes(sw.id);
+                const hasMultiClauseStructure = /[,;.]/.test(raw) || tokens.length >= 9;
+
+                if (completeness.status === 'fragment' || (requiresTwoClauses && tokens.length < 7)) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 0.5,
+                        maxPts: sw.maxPts,
+                        feedback: `Incomplete sentence or missing second clause: "${sw.key}" requires a full complex sentence with clear context, not a short fragment (capped at 0.5 pts).${gentleNote} Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                if (completeness.status === 'minimal' || (requiresTwoClauses && !hasMultiClauseStructure)) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 1,
+                        maxPts: sw.maxPts,
+                        feedback: `Underdeveloped sentence: "${sw.key}" is used, but a full B2-level two-clause sentence with clearer context is needed for full points (deducted 1 pt).${gentleNote} Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
                 results.push({
                     id: sw.id,
                     awarded: sw.maxPts,
                     maxPts: sw.maxPts,
-                    feedback: `Correct and natural usage of "${sw.key}"!${gentleNote}`
+                    feedback: `Well-formed, complete B2 sentence demonstrating "${sw.key}" in proper context.${gentleNote}`
                 });
             });
 
