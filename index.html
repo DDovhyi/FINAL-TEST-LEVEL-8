@@ -106,7 +106,7 @@
                 </div>
                 <div class="flex items-end">
                     <div class="w-full p-3 rounded-xl bg-indigo-950/50 border border-indigo-500/25 text-xs text-indigo-200 leading-relaxed">
-                        <strong class="text-indigo-300">Automated AI Grading:</strong> Definitions, pattern usage, and translations are evaluated semantically. Minor typos, missing commas, or lowercase starts are noted without penalty.
+                        <strong class="text-indigo-300">Automated Grading Policy:</strong> Evaluated strictly for meaning, target language, and grammatical patterns. Gibberish or wrong-language inputs receive 0 pts, while minor typos, articles, lowercase starts, and punctuation are noted gently without penalty.
                     </div>
                 </div>
             </div>
@@ -1044,6 +1044,21 @@
         }
 
         // ==================== DETERMINISTIC SEMANTIC & GRAMMATICAL ENGINE ====================
+        const STOP_WORDS_EN = new Set([
+            'a', 'an', 'the', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+            'to', 'of', 'in', 'on', 'at', 'for', 'with', 'by', 'as', 'it', 'its',
+            'that', 'this', 'these', 'those', 'and', 'or', 'but', 'if', 'so',
+            'you', 'your', 'we', 'our', 'they', 'their', 'he', 'she', 'his', 'her',
+            'i', 'my', 'me', 'him', 'us', 'them', 'something', 'someone', 'thing', 'things', 'very'
+        ]);
+
+        const STOP_WORDS_RU = new Set([
+            'и', 'в', 'во', 'не', 'что', 'он', 'на', 'я', 'с', 'со', 'как', 'а', 'то',
+            'все', 'она', 'так', 'его', 'но', 'да', 'ты', 'к', 'у', 'же', 'вы', 'за',
+            'бы', 'по', 'только', 'ее', 'мне', 'было', 'вот', 'от', 'меня', 'еще', 'нет',
+            'о', 'из', 'ему', 'теперь', 'когда', 'даже', 'ну', 'вдруг', 'ли', 'если', 'уже'
+        ]);
+
         function normalizeText(str) {
             return (str || '')
                 .toLowerCase()
@@ -1072,36 +1087,131 @@
             return matrix[b.length][a.length];
         }
 
-        // Fuzzy match a concept stem against student tokens (tolerates minor spelling errors/missing letters)
-        function matchesStemFuzzy(normText, words, stem) {
-            const cleanStem = stem.toLowerCase().trim();
-            if (normText.includes(cleanStem)) return true;
-            if (cleanStem.includes(' ')) return false;
-            const maxDist = cleanStem.length >= 7 ? 2 : (cleanStem.length >= 4 ? 1 : 0);
-            if (maxDist === 0) return false;
-            return words.some(w => {
-                if (w.startsWith(cleanStem)) return true;
-                const prefix = w.slice(0, cleanStem.length);
-                return levenshtein(prefix, cleanStem) <= maxDist;
-            });
+        // Detect keyboard mash, pure numbers/symbols, or non-linguistic gibberish
+        function isGibberishInput(rawText, expectedLang) {
+            const trimmed = (rawText || '').trim();
+            if (!trimmed) return false;
+
+            const lettersOnly = trimmed.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, '');
+            if (lettersOnly.length < 2) return true;
+
+            // Repeated identical characters (e.g., "aaaa", "ыыыы")
+            if (/(.)\1{3,}/i.test(lettersOnly)) return true;
+
+            // Common keyboard mash sequences
+            const mashPatterns = [
+                'asdf', 'sdfg', 'dfgh', 'fghj', 'ghjk', 'hjkl',
+                'qwer', 'wert', 'erty', 'rtyu', 'tyui', 'yuio', 'uiop',
+                'zxcv', 'xcvb', 'cvbn', 'vbnm',
+                'фыва', 'ывап', 'вапр', 'апро', 'прол', 'ролдж',
+                'йцук', 'цуке', 'укен', 'кенг', 'енгш', 'нгшщ',
+                'ячсм', 'чсми', 'смит', 'мить'
+            ];
+            const lowerLetters = lettersOnly.toLowerCase();
+            if (mashPatterns.some(seq => lowerLetters.includes(seq))) return true;
+
+            const tokens = normalizeText(trimmed).split(' ').filter(Boolean);
+            if (!tokens.length) return true;
+
+            const vowelRegex = expectedLang === 'ru' ? /[аеёиоуыэюя]/i : /[aeiouy]/i;
+            const consonantRunRegex = expectedLang === 'ru'
+                ? /[бвгджзйклмнпрстфхцчшщ]{5,}/i
+                : /[bcdfghjklmnpqrstvwxz]{5,}/i;
+
+            let validWordCount = 0;
+            for (const tok of tokens) {
+                const alpha = tok.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, '');
+                if (!alpha) continue;
+                if (consonantRunRegex.test(alpha)) return true;
+                if (alpha.length >= 2 && vowelRegex.test(alpha)) {
+                    validWordCount++;
+                } else if (alpha.length === 1 && (alpha === 'a' || alpha === 'i' || expectedLang === 'ru')) {
+                    validWordCount++;
+                }
+            }
+
+            return validWordCount === 0 || (tokens.length >= 2 && validWordCount / tokens.length < 0.5);
         }
 
-        function getSurfacePolishNote(rawText) {
+        // Strict script verification (English must use Latin; Russian must use Cyrillic)
+        function checkScriptMatch(rawText, expectedLang) {
+            const latinCount = (rawText.match(/[a-zA-Z]/g) || []).length;
+            const cyrillicCount = (rawText.match(/[а-яА-ЯёЁ]/g) || []).length;
+
+            if (expectedLang === 'en') {
+                if (cyrillicCount > 0 && latinCount === 0) {
+                    return { ok: false, reason: 'Wrong language used (expected English, received Russian). No points awarded.' };
+                }
+                if (cyrillicCount > latinCount) {
+                    return { ok: false, reason: 'Wrong language used (mostly Russian instead of English). No points awarded.' };
+                }
+            } else if (expectedLang === 'ru') {
+                if (latinCount > 0 && cyrillicCount === 0) {
+                    return { ok: false, reason: 'Wrong language used (expected Russian, received English). No points awarded.' };
+                }
+                if (latinCount > cyrillicCount) {
+                    return { ok: false, reason: 'Wrong language used (mostly English instead of Russian). No points awarded.' };
+                }
+            }
+            return { ok: true };
+        }
+
+        // Fuzzy match a concept stem against student tokens (tolerates minor spelling errors while tracking typo hints)
+        function matchStemWithDetails(normText, words, stem) {
+            const cleanStem = stem.toLowerCase().trim();
+            if (normText.includes(cleanStem)) {
+                return { matched: true, typoWord: null };
+            }
+            if (cleanStem.includes(' ')) {
+                return { matched: false, typoWord: null };
+            }
+            const maxDist = cleanStem.length >= 5 ? 2 : (cleanStem.length === 4 ? 1 : 0);
+            if (maxDist === 0) return { matched: false, typoWord: null };
+
+            for (const w of words) {
+                if (STOP_WORDS_EN.has(w) || STOP_WORDS_RU.has(w)) continue;
+                if (Math.abs(w.length - cleanStem.length) > 3 && w.length < cleanStem.length) continue;
+                if (w.startsWith(cleanStem)) {
+                    return { matched: true, typoWord: null };
+                }
+                const prefix = w.slice(0, cleanStem.length);
+                const dist = levenshtein(prefix, cleanStem);
+                if (dist > 0 && dist <= maxDist) {
+                    return { matched: true, typoWord: w };
+                }
+            }
+            return { matched: false, typoWord: null };
+        }
+
+        function buildGentleNotes(rawText, typoWords = [], checkArticles = false) {
             const trimmed = (rawText || '').trim();
             if (!trimmed) return '';
             const notes = [];
+
+            const uniqueTypos = [...new Set(typoWords.filter(Boolean))];
+            if (uniqueTypos.length > 0) {
+                notes.push(`minor spelling typo in "${uniqueTypos.join('", "')}"`);
+            }
             if (/^[a-zа-яё]/.test(trimmed)) {
                 notes.push('starts with a lowercase letter');
             }
             if (trimmed.split(/\s+/).length >= 4 && !/[.!?]$/.test(trimmed)) {
                 notes.push('missing final punctuation');
             }
-            return notes.length ? ` (Surface note: ${notes.join(', ')} — no points deducted.)` : '';
+            if (checkArticles) {
+                if (/\ba\s+[aeiou]\w+/i.test(trimmed)) {
+                    notes.push('article hint: consider "an" before a vowel sound');
+                } else if (/\ban\s+[bcdfghjklmnpqrstvwxyz]\w+/i.test(trimmed) && !/\ban\s+(hour|honest|honor|heir)\b/i.test(trimmed)) {
+                    notes.push('article hint: consider "a" before a consonant sound');
+                }
+            }
+
+            return notes.length ? ` (Hint: ${notes.join('; ')} — no points deducted.)` : '';
         }
 
-        function verifySelectedPattern(patternLabel, rawSentence, normSentence, tokens) {
+        function verifySelectedPattern(patternLabel, rawSentence, normSentence) {
             if (!patternLabel) {
-                return { ok: false, reason: 'No pattern was selected from the dropdown list.' };
+                return { ok: false, reason: 'No grammatical pattern was selected from the dropdown list.' };
             }
 
             if (patternLabel.startsWith('Ought')) {
@@ -1122,8 +1232,8 @@
                     'feel', 'feels', 'felt', 'notice', 'notices', 'noticed', 'observe', 'observes', 'observed',
                     'would like', 'would love'
                 ];
-                const hasTrigger = triggerVerbs.some(v => normSentence.includes(v));
-                const hasObjectStructure = /\b(me|him|her|us|them|you|someone|somebody|people|everyone|everybody|the\s+\w+|my\s+\w+|his\s+\w+|her\s+\w+|our\s+\w+|their\s+\w+)\s+(to\s+\w+|\w+ing|\w+)\b/.test(normSentence);
+                const hasTrigger = triggerVerbs.some(v => new RegExp(`\\b${v}\\b`).test(normSentence));
+                const hasObjectStructure = /\b(me|him|her|us|them|you|someone|somebody|people|everyone|everybody|the\s+\w+|my\s+\w+|his\s+\w+|her\s+\w+|our\s+\w+|their\s+\w+|\w+s)\s+(to\s+\w+|\w+ing|\w+)\b/.test(normSentence);
                 return (hasTrigger && hasObjectStructure)
                     ? { ok: true }
                     : { ok: false, reason: 'Expected a Complex Object verb (e.g., want/expect/make/let/see/hear) + object + (to) infinitive / -ing.' };
@@ -1156,7 +1266,6 @@
                 const lower = rawSentence.toLowerCase();
                 const hasIf = /\bif\b/.test(normSentence);
                 const hasWould = /\b(would|could|might|'d)\b/.test(lower);
-                const hasPastPerf = /\b(had|hadn't|'d)\s+\w+/.test(lower);
                 return (hasIf && hasWould)
                     ? { ok: true }
                     : { ok: false, reason: 'Expected a Mixed Conditional combining "if" + past tense/past perfect with "would/could/might".' };
@@ -1168,13 +1277,12 @@
         function evaluateDeterministicExam(submission) {
             const results = [];
 
-            // 1.1 Definitions (2 pts each)
+            // 1.1 Definitions (2 pts each) — Strictly in English; zero tolerance for gibberish or off-topic text
             EXAM_DATA.definitions.forEach(def => {
                 const sub = submission.definitions.find(s => s.id === def.id);
                 const raw = sub ? sub.studentAnswer : '';
                 const norm = normalizeText(raw);
                 const tokens = norm.split(' ').filter(Boolean);
-                const polishNote = getSurfacePolishNote(raw);
 
                 if (!norm) {
                     results.push({
@@ -1186,52 +1294,86 @@
                     return;
                 }
 
-                // Check circular definition (using the target word itself without real explanation)
+                const scriptCheck = checkScriptMatch(raw, 'en');
+                if (!scriptCheck.ok) {
+                    results.push({
+                        id: def.id,
+                        awarded: 0,
+                        maxPts: def.maxPts,
+                        feedback: `${scriptCheck.reason} Write the definition in English. Model: "${def.reference}"`
+                    });
+                    return;
+                }
+
+                if (isGibberishInput(raw, 'en') || tokens.length < 3) {
+                    results.push({
+                        id: def.id,
+                        awarded: 0,
+                        maxPts: def.maxPts,
+                        feedback: `Invalid input / gibberish or too brief to define "${def.word}". No points awarded. Model: "${def.reference}"`
+                    });
+                    return;
+                }
+
+                const typos = [];
                 const usesBanned = def.bannedStems.some(b => norm.includes(b));
-                const matchedGroups = def.conceptGroups.filter(group =>
-                    group.some(stem => matchesStemFuzzy(norm, tokens, stem))
-                ).length;
+                let matchedGroups = 0;
+
+                def.conceptGroups.forEach(group => {
+                    let groupMatched = false;
+                    for (const stem of group) {
+                        const res = matchStemWithDetails(norm, tokens, stem);
+                        if (res.matched) {
+                            groupMatched = true;
+                            if (res.typoWord) typos.push(res.typoWord);
+                            break;
+                        }
+                    }
+                    if (groupMatched) matchedGroups++;
+                });
+
                 const totalGroups = def.conceptGroups.length;
                 const ratio = matchedGroups / totalGroups;
+                const gentleNote = buildGentleNotes(raw, typos, true);
 
                 if (usesBanned && matchedGroups <= 1) {
                     results.push({
                         id: def.id,
-                        awarded: 0.5,
+                        awarded: 0,
                         maxPts: def.maxPts,
-                        feedback: `Avoid defining the word by repeating "${def.word}" itself. Model definition: "${def.reference}"`
+                        feedback: `Circular or incomplete definition — do not just repeat "${def.word}" without explaining what it means. No points awarded. Model: "${def.reference}"`
                     });
-                } else if (ratio >= 0.65 || (totalGroups === 1 && matchedGroups === 1)) {
+                } else if (ratio >= 0.6 || (totalGroups === 1 && matchedGroups === 1)) {
                     results.push({
                         id: def.id,
                         awarded: def.maxPts,
                         maxPts: def.maxPts,
-                        feedback: `Well-explained definition capturing the core meaning!${polishNote} Model: "${def.reference}"`
+                        feedback: `Clear, accurate definition capturing the core meaning!${gentleNote} Model: "${def.reference}"`
                     });
-                } else if (matchedGroups >= 1 || tokens.length >= 5) {
+                } else if (matchedGroups >= 1) {
                     results.push({
                         id: def.id,
-                        awarded: 1.5,
+                        awarded: 1,
                         maxPts: def.maxPts,
-                        feedback: `Good attempt with the right general idea, though slightly incomplete.${polishNote} Model: "${def.reference}"`
+                        feedback: `Partially accurate idea, but missing key details of what "${def.word}" actually does or means.${gentleNote} Model: "${def.reference}"`
                     });
                 } else {
                     results.push({
                         id: def.id,
                         awarded: 0,
                         maxPts: def.maxPts,
-                        feedback: `The definition does not clearly describe "${def.word}". Model definition: "${def.reference}"`
+                        feedback: `Irrelevant or inaccurate explanation — does not match the meaning of "${def.word}". No points awarded. Model: "${def.reference}"`
                     });
                 }
             });
 
-            // 1.2 Word Translations (1 pt each)
+            // 1.2 Word Translations (1 pt each) — Strict target language & fuzzy typo tolerance
             EXAM_DATA.wordTranslations.forEach(wt => {
                 const sub = submission.wordTranslations.find(s => s.id === wt.id);
                 const raw = sub ? sub.studentAnswer : '';
                 const norm = normalizeText(raw);
                 const tokens = norm.split(' ').filter(Boolean);
-                const polishNote = getSurfacePolishNote(raw);
+                const expectedLang = wt.direction === 'RU → EN' ? 'en' : 'ru';
 
                 if (!norm) {
                     results.push({
@@ -1243,60 +1385,102 @@
                     return;
                 }
 
+                const scriptCheck = checkScriptMatch(raw, expectedLang);
+                if (!scriptCheck.ok) {
+                    results.push({
+                        id: wt.id,
+                        awarded: 0,
+                        maxPts: wt.maxPts,
+                        feedback: `${scriptCheck.reason} Expected: "${wt.reference}".`
+                    });
+                    return;
+                }
+
+                if (isGibberishInput(raw, expectedLang)) {
+                    results.push({
+                        id: wt.id,
+                        awarded: 0,
+                        maxPts: wt.maxPts,
+                        feedback: `Invalid input / gibberish detected. No points awarded. Expected: "${wt.reference}".`
+                    });
+                    return;
+                }
+
                 if (wt.requirePair) {
-                    const verbOk = wt.requirePair[0].some(stem => matchesStemFuzzy(norm, tokens, stem));
-                    const nounOk = wt.requirePair[1].some(stem => matchesStemFuzzy(norm, tokens, stem));
+                    const typos = [];
+                    let verbOk = false;
+                    for (const stem of wt.requirePair[0]) {
+                        const r = matchStemWithDetails(norm, tokens, stem);
+                        if (r.matched) { verbOk = true; if (r.typoWord) typos.push(r.typoWord); break; }
+                    }
+                    let nounOk = false;
+                    for (const stem of wt.requirePair[1]) {
+                        const r = matchStemWithDetails(norm, tokens, stem);
+                        if (r.matched) { nounOk = true; if (r.typoWord) typos.push(r.typoWord); break; }
+                    }
+                    const gentleNote = buildGentleNotes(raw, typos, expectedLang === 'en');
+
                     if (verbOk && nounOk) {
                         results.push({
                             id: wt.id,
                             awarded: wt.maxPts,
                             maxPts: wt.maxPts,
-                            feedback: `Accurate translation!${polishNote}`
+                            feedback: `Accurate translation!${gentleNote}`
                         });
                     } else if (verbOk || nounOk) {
                         results.push({
                             id: wt.id,
                             awarded: 0.5,
                             maxPts: wt.maxPts,
-                            feedback: `Partially accurate — make sure both parts of the phrase are translated. Expected: "${wt.reference}".`
+                            feedback: `Partially accurate — translate both parts of the phrase.${gentleNote} Expected: "${wt.reference}".`
                         });
                     } else {
                         results.push({
                             id: wt.id,
                             awarded: 0,
                             maxPts: wt.maxPts,
-                            feedback: `Incorrect translation. Expected: "${wt.reference}".`
+                            feedback: `Incorrect translation. No points awarded. Expected: "${wt.reference}".`
                         });
                     }
                     return;
                 }
 
-                const matched = wt.acceptedStems.some(stem => matchesStemFuzzy(norm, tokens, stem));
+                const typos = [];
+                let matched = false;
+                for (const stem of wt.acceptedStems) {
+                    const r = matchStemWithDetails(norm, tokens, stem);
+                    if (r.matched) {
+                        matched = true;
+                        if (r.typoWord) typos.push(r.typoWord);
+                        break;
+                    }
+                }
+                const gentleNote = buildGentleNotes(raw, typos, expectedLang === 'en');
+
                 if (matched) {
                     results.push({
                         id: wt.id,
                         awarded: wt.maxPts,
                         maxPts: wt.maxPts,
-                        feedback: `Correct translation!${polishNote}`
+                        feedback: `Correct translation!${gentleNote}`
                     });
                 } else {
                     results.push({
                         id: wt.id,
                         awarded: 0,
                         maxPts: wt.maxPts,
-                        feedback: `Incorrect translation. Expected: "${wt.reference}".`
+                        feedback: `Incorrect translation. No points awarded. Expected: "${wt.reference}".`
                     });
                 }
             });
 
-            // 1.3 Pattern Sentences (3 pts each)
+            // 1.3 Pattern Sentences (3 pts each) — Must be English, non-gibberish, contain target word + match pattern
             EXAM_DATA.patternSentences.forEach(ps => {
                 const sub = submission.patternSentences.find(s => s.id === ps.id);
                 const raw = sub ? sub.studentSentence : '';
                 const selectedPattern = sub ? sub.selectedPattern : '';
                 const norm = normalizeText(raw);
                 const tokens = norm.split(' ').filter(Boolean);
-                const polishNote = getSurfacePolishNote(raw);
 
                 if (!norm) {
                     results.push({
@@ -1308,52 +1492,82 @@
                     return;
                 }
 
-                const hasTargetWord = ps.wordStems.some(stem => matchesStemFuzzy(norm, tokens, stem));
-                const patternCheck = verifySelectedPattern(selectedPattern, raw, norm, tokens);
+                const scriptCheck = checkScriptMatch(raw, 'en');
+                if (!scriptCheck.ok) {
+                    results.push({
+                        id: ps.id,
+                        awarded: 0,
+                        maxPts: ps.maxPts,
+                        feedback: `${scriptCheck.reason} Example: "${ps.sample}"`
+                    });
+                    return;
+                }
+
+                if (isGibberishInput(raw, 'en') || tokens.length < 4) {
+                    results.push({
+                        id: ps.id,
+                        awarded: 0,
+                        maxPts: ps.maxPts,
+                        feedback: `Invalid input / gibberish or incomplete fragment. No points awarded. Example: "${ps.sample}"`
+                    });
+                    return;
+                }
+
+                const typos = [];
+                let hasTargetWord = false;
+                for (const stem of ps.wordStems) {
+                    const r = matchStemWithDetails(norm, tokens, stem);
+                    if (r.matched) {
+                        hasTargetWord = true;
+                        if (r.typoWord) typos.push(r.typoWord);
+                        break;
+                    }
+                }
+                const patternCheck = verifySelectedPattern(selectedPattern, raw, norm);
+                const gentleNote = buildGentleNotes(raw, typos, true);
 
                 if (hasTargetWord && patternCheck.ok) {
                     results.push({
                         id: ps.id,
                         awarded: ps.maxPts,
                         maxPts: ps.maxPts,
-                        feedback: `Great job! Both "${ps.word}" and the selected pattern are used accurately.${polishNote}`
+                        feedback: `Excellent! Both "${ps.word}" and the selected pattern are used accurately.${gentleNote}`
                     });
                 } else if (!selectedPattern && hasTargetWord) {
                     results.push({
                         id: ps.id,
-                        awarded: 1.5,
+                        awarded: 0.5,
                         maxPts: ps.maxPts,
-                        feedback: `You used "${ps.word}", but forgot to select a pattern from the dropdown. Example: "${ps.sample}"`
+                        feedback: `You used "${ps.word}", but did not select a grammatical pattern from the dropdown.${gentleNote} Example: "${ps.sample}"`
                     });
                 } else if (hasTargetWord && !patternCheck.ok) {
                     results.push({
                         id: ps.id,
-                        awarded: 1.5,
+                        awarded: 0.5,
                         maxPts: ps.maxPts,
-                        feedback: `"${ps.word}" is present, but the pattern doesn't match: ${patternCheck.reason} Example: "${ps.sample}"`
+                        feedback: `"${ps.word}" is present, but the selected pattern was not applied: ${patternCheck.reason}${gentleNote} Example: "${ps.sample}"`
                     });
                 } else if (!hasTargetWord && patternCheck.ok) {
                     results.push({
                         id: ps.id,
-                        awarded: 1.5,
+                        awarded: 0.5,
                         maxPts: ps.maxPts,
-                        feedback: `The chosen grammatical pattern is correct, but "${ps.word}" is missing from your sentence. Example: "${ps.sample}"`
+                        feedback: `The grammatical pattern is valid, but the required word "${ps.word}" is missing.${gentleNote} Example: "${ps.sample}"`
                     });
                 } else {
                     results.push({
                         id: ps.id,
-                        awarded: 0.5,
+                        awarded: 0,
                         maxPts: ps.maxPts,
-                        feedback: `Both the target word "${ps.word}" and the chosen pattern need revision. Example: "${ps.sample}"`
+                        feedback: `Neither the target word "${ps.word}" nor the selected grammatical pattern is present. No points awarded. Example: "${ps.sample}"`
                     });
                 }
             });
 
-            // 2.1 RU -> EN & 2.2 EN -> RU (2 pts each)
-            const evaluateTranslationItem = (item, rawText) => {
+            // 2.1 RU -> EN & 2.2 EN -> RU (2 pts each) — Strict language, anti-gibberish, and >=25% meaning threshold
+            const evaluateTranslationItem = (item, rawText, expectedLang) => {
                 const norm = normalizeText(rawText);
                 const tokens = norm.split(' ').filter(Boolean);
-                const polishNote = getSurfacePolishNote(rawText);
 
                 if (!norm) {
                     return {
@@ -1364,28 +1578,66 @@
                     };
                 }
 
-                const matchedCount = item.keyGroups.filter(group =>
-                    group.some(stem => matchesStemFuzzy(norm, tokens, stem))
-                ).length;
+                const scriptCheck = checkScriptMatch(rawText, expectedLang);
+                if (!scriptCheck.ok) {
+                    return {
+                        id: item.id,
+                        awarded: 0,
+                        maxPts: item.maxPts,
+                        feedback: `${scriptCheck.reason} Model: "${item.reference}"`
+                    };
+                }
+
+                if (isGibberishInput(rawText, expectedLang) || tokens.length < 3) {
+                    return {
+                        id: item.id,
+                        awarded: 0,
+                        maxPts: item.maxPts,
+                        feedback: `Invalid input / gibberish or incomplete text detected. No points awarded. Model: "${item.reference}"`
+                    };
+                }
+
+                const typos = [];
+                let matchedCount = 0;
+                item.keyGroups.forEach(group => {
+                    let groupHit = false;
+                    for (const stem of group) {
+                        const r = matchStemWithDetails(norm, tokens, stem);
+                        if (r.matched) {
+                            groupHit = true;
+                            if (r.typoWord) typos.push(r.typoWord);
+                            break;
+                        }
+                    }
+                    if (groupHit) matchedCount++;
+                });
+
                 const ratio = matchedCount / item.keyGroups.length;
+                const gentleNote = buildGentleNotes(rawText, typos, expectedLang === 'en');
+
+                if (ratio < 0.25) {
+                    return {
+                        id: item.id,
+                        awarded: 0,
+                        maxPts: item.maxPts,
+                        feedback: `Translation does not match the source sentence meaning or required vocabulary/structures. No points awarded. Model: "${item.reference}"`
+                    };
+                }
 
                 let awarded = 0;
                 let verdict = '';
-                if (ratio >= 0.75) {
+                if (ratio >= 0.72) {
                     awarded = 2;
-                    verdict = `Accurate translation conveying the key vocabulary and grammatical structure!${polishNote}`;
-                } else if (ratio >= 0.55) {
+                    verdict = `Accurate translation conveying the key vocabulary and grammatical structure!${gentleNote}`;
+                } else if (ratio >= 0.5) {
                     awarded = 1.5;
-                    verdict = `Very good translation — almost all key elements are present.${polishNote}`;
+                    verdict = `Good translation — most key meaning and grammar elements are present.${gentleNote}`;
                 } else if (ratio >= 0.35) {
                     awarded = 1;
-                    verdict = `Partially accurate, though some key vocabulary or structural details were missed.`;
-                } else if (matchedCount >= 1) {
-                    awarded = 0.5;
-                    verdict = `Only a small part of the sentence meaning was captured.`;
+                    verdict = `Partially accurate, though several key vocabulary or grammar elements were missed.${gentleNote}`;
                 } else {
-                    awarded = 0;
-                    verdict = `The translation does not convey the required meaning or course structures.`;
+                    awarded = 0.5;
+                    verdict = `Only a minimal part of the sentence meaning was translated.${gentleNote}`;
                 }
 
                 return {
@@ -1398,21 +1650,20 @@
 
             EXAM_DATA.ruToEn.forEach(item => {
                 const sub = submission.ruToEn.find(s => s.id === item.id);
-                results.push(evaluateTranslationItem(item, sub ? sub.studentTranslation : ''));
+                results.push(evaluateTranslationItem(item, sub ? sub.studentTranslation : '', 'en'));
             });
 
             EXAM_DATA.enToRu.forEach(item => {
                 const sub = submission.enToRu.find(s => s.id === item.id);
-                results.push(evaluateTranslationItem(item, sub ? sub.studentTranslation : ''));
+                results.push(evaluateTranslationItem(item, sub ? sub.studentTranslation : '', 'ru'));
             });
 
-            // 3.1 Small Words (2 pts each)
+            // 3.1 Small Words (2 pts each) — Must be English, non-gibberish, >= 4 words, and satisfy rule
             EXAM_DATA.smallWords.forEach(sw => {
                 const sub = submission.smallWords.find(s => s.id === sw.id);
                 const raw = sub ? sub.studentSentence : '';
                 const norm = normalizeText(raw);
                 const tokens = norm.split(' ').filter(Boolean);
-                const polishNote = getSurfacePolishNote(raw);
 
                 if (!norm) {
                     results.push({
@@ -1424,24 +1675,47 @@
                     return;
                 }
 
-                const hasSmallWord = norm.includes(sw.key) || matchesStemFuzzy(norm, tokens, sw.key);
-                if (!hasSmallWord) {
+                const scriptCheck = checkScriptMatch(raw, 'en');
+                if (!scriptCheck.ok) {
                     results.push({
                         id: sw.id,
                         awarded: 0,
                         maxPts: sw.maxPts,
-                        feedback: `Please include "${sw.key}" in your sentence. Example: "${sw.sample}"`
+                        feedback: `${scriptCheck.reason} Example: "${sw.sample}"`
                     });
                     return;
                 }
+
+                if (isGibberishInput(raw, 'en') || tokens.length < 4) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 0,
+                        maxPts: sw.maxPts,
+                        feedback: `Invalid input / gibberish or too short to form a complete sentence. No points awarded. Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                const matchRes = matchStemWithDetails(norm, tokens, sw.key);
+                if (!matchRes.matched) {
+                    results.push({
+                        id: sw.id,
+                        awarded: 0,
+                        maxPts: sw.maxPts,
+                        feedback: `Target small word "${sw.key}" is missing from your sentence. No points awarded. Example: "${sw.sample}"`
+                    });
+                    return;
+                }
+
+                const gentleNote = buildGentleNotes(raw, matchRes.typoWord ? [matchRes.typoWord] : [], true);
 
                 // Rule 1: Never "despite of"
                 if (sw.id === 'sw_3' && /\bdespite\s+of\b/.test(norm)) {
                     results.push({
                         id: sw.id,
-                        awarded: 1,
+                        awarded: 0.5,
                         maxPts: sw.maxPts,
-                        feedback: `Do not use "of" after "despite" (use "despite + noun/gerund" or "in spite of"). Example: "${sw.sample}"`
+                        feedback: `Grammatical error: never use "of" after "despite" (use "despite + noun/gerund" or "in spite of"). Example: "${sw.sample}"`
                     });
                     return;
                 }
@@ -1450,9 +1724,9 @@
                 if ((sw.id === 'sw_4' || sw.id === 'sw_5') && new RegExp(`\\b${sw.key}\\s+(?:\\w+\\s+){1,3}(?:will|won't)\\b`).test(raw.toLowerCase())) {
                     results.push({
                         id: sw.id,
-                        awarded: 1,
+                        awarded: 0.5,
                         maxPts: sw.maxPts,
-                        feedback: `Do not use "will" directly inside the "${sw.key}" clause — use Present Simple instead. Example: "${sw.sample}"`
+                        feedback: `Grammatical error: do not use "will" inside the "${sw.key}" clause — use Present Simple instead. Example: "${sw.sample}"`
                     });
                     return;
                 }
@@ -1461,20 +1735,9 @@
                 if (sw.id === 'sw_6' && !/\bthough\s*[.!?]*\s*$/i.test(raw.trim())) {
                     results.push({
                         id: sw.id,
-                        awarded: 1,
+                        awarded: 0.5,
                         maxPts: sw.maxPts,
-                        feedback: `For this item, place "though" at the very end of the sentence. Example: "${sw.sample}"`
-                    });
-                    return;
-                }
-
-                // Require a complete sentence (at least 4 words)
-                if (tokens.length < 4) {
-                    results.push({
-                        id: sw.id,
-                        awarded: 1,
-                        maxPts: sw.maxPts,
-                        feedback: `Please write a full, meaningful sentence demonstrating "${sw.key}". Example: "${sw.sample}"`
+                        feedback: `Position error: place "though" at the very end of the sentence. Example: "${sw.sample}"`
                     });
                     return;
                 }
@@ -1483,19 +1746,19 @@
                     id: sw.id,
                     awarded: sw.maxPts,
                     maxPts: sw.maxPts,
-                    feedback: `Correct and natural usage of "${sw.key}"!${polishNote}`
+                    feedback: `Correct and natural usage of "${sw.key}"!${gentleNote}`
                 });
             });
 
             return {
-                overallSummary: 'Written exam evaluated! All definitions, grammatical patterns, translations, and small words have been checked. Minor capitalization, punctuation, and spelling slips were noted gently without deducting points.',
+                overallSummary: 'Written exam evaluated! Gibberish, wrong-language entries, and off-topic answers receive 0 points, while recognizable spelling typos, articles, lowercase starts, and punctuation are noted gently without penalty.',
                 results
             };
         }
 
         // Optional fast-timeout Gemini API enhancer (falls back silently & instantly on any network/CORS issue)
         async function tryGeminiWithShortTimeout(submission, timeoutMs = 6000) {
-            const apiKey = "";
+            const apiKey = window.__GEMINI_API_KEY__ || "";
             if (!apiKey) {
                 throw new Error('Offline/sandbox mode: using built-in semantic engine.');
             }
@@ -1505,33 +1768,71 @@
 
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-                const systemPrompt = `You are a supportive Upper-Intermediate English examiner. Grade the exam JSON.
-NON-PENALTY RULES:
-- NEVER deduct points for lowercase letters (unless proper names/titles), missing commas/punctuation, or minor spelling typos/missing letters if the word is recognizable.
+                const systemPrompt = `You are a strict yet fair Upper-Intermediate English examiner. Grade the exam JSON.
+STRICT ZERO-POINT RULES:
+- Award 0 points immediately for gibberish/keyboard mash, wrong language (e.g., Russian where English is required or English where Russian is required), or irrelevant/nonsense answers that fail to convey the required meaning or target word/pattern. Never award pity points.
+NON-PENALTY SURFACE RULES:
+- NEVER deduct points for recognizable spelling typos/missing letters, missing/incorrect articles (a/an/the), lowercase letters (unless proper names/titles), or missing commas/punctuation.
 - NEVER deduct points in Definitions if phrased simply, as long as core meaning is clear.
-- Mention any surface slips gently in feedback while awarding FULL points.`;
+- Mention any surface slips gently as a hint in feedback while awarding FULL points.`;
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    signal: controller.signal,
                     headers: { 'Content-Type': 'application/json' },
+                    signal: controller.signal,
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: JSON.stringify(submission) }] }],
                         systemInstruction: { parts: [{ text: systemPrompt }] },
-                        generationConfig: { responseMimeType: "application/json" }
+                        generationConfig: { responseMimeType: 'application/json' }
                     })
                 });
 
                 clearTimeout(timerId);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                if (!response.ok) throw new Error('API request failed');
                 const data = await response.json();
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
-                return JSON.parse(cleaned);
-            } catch (err) {
+                const rawJson = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!rawJson) throw new Error('Empty API payload');
+                return JSON.parse(rawJson.replace(/```json|```/g, '').trim());
+            } finally {
                 clearTimeout(timerId);
-                throw err;
             }
+        }
+
+        // ==================== COLLECT & GRADE EXAM ====================
+        function collectSubmission() {
+            return {
+                definitions: EXAM_DATA.definitions.map(item => ({
+                    id: item.id,
+                    word: item.word,
+                    studentAnswer: document.getElementById(`input-${item.id}`)?.value || ''
+                })),
+                wordTranslations: EXAM_DATA.wordTranslations.map(item => ({
+                    id: item.id,
+                    prompt: item.prompt,
+                    studentAnswer: document.getElementById(`input-${item.id}`)?.value || ''
+                })),
+                patternSentences: EXAM_DATA.patternSentences.map(item => ({
+                    id: item.id,
+                    word: item.word,
+                    selectedPattern: document.getElementById(`select-${item.id}`)?.value || '',
+                    studentSentence: document.getElementById(`input-${item.id}`)?.value || ''
+                })),
+                ruToEn: EXAM_DATA.ruToEn.map(item => ({
+                    id: item.id,
+                    source: item.source,
+                    studentTranslation: document.getElementById(`input-${item.id}`)?.value || ''
+                })),
+                enToRu: EXAM_DATA.enToRu.map(item => ({
+                    id: item.id,
+                    source: item.source,
+                    studentTranslation: document.getElementById(`input-${item.id}`)?.value || ''
+                })),
+                smallWords: EXAM_DATA.smallWords.map(item => ({
+                    id: item.id,
+                    word: item.word,
+                    studentSentence: document.getElementById(`input-${item.id}`)?.value || ''
+                }))
+            };
         }
 
         async function gradeWrittenExam() {
@@ -1539,136 +1840,89 @@ NON-PENALTY RULES:
             const spinner = document.getElementById('grade-spinner');
             const btnText = document.getElementById('grade-btn-text');
 
-            // Collect all student answers
-            const submission = {
-                definitions: EXAM_DATA.definitions.map(d => ({
-                    id: d.id,
-                    targetWord: d.word,
-                    referenceDefinition: d.reference,
-                    maxPts: d.maxPts,
-                    studentAnswer: document.getElementById(`input-${d.id}`).value.trim()
-                })),
-                wordTranslations: EXAM_DATA.wordTranslations.map(w => ({
-                    id: w.id,
-                    prompt: w.prompt,
-                    maxPts: w.maxPts,
-                    studentAnswer: document.getElementById(`input-${w.id}`).value.trim()
-                })),
-                patternSentences: EXAM_DATA.patternSentences.map(p => ({
-                    id: p.id,
-                    targetWord: p.word,
-                    selectedPattern: document.getElementById(`select-${p.id}`).value,
-                    maxPts: p.maxPts,
-                    studentSentence: document.getElementById(`input-${p.id}`).value.trim()
-                })),
-                ruToEn: EXAM_DATA.ruToEn.map(r => ({
-                    id: r.id,
-                    sourceRussian: r.source,
-                    referenceEnglish: r.reference,
-                    maxPts: r.maxPts,
-                    studentTranslation: document.getElementById(`input-${r.id}`).value.trim()
-                })),
-                enToRu: EXAM_DATA.enToRu.map(e => ({
-                    id: e.id,
-                    sourceEnglish: e.source,
-                    referenceRussian: e.reference,
-                    maxPts: e.maxPts,
-                    studentTranslation: document.getElementById(`input-${e.id}`).value.trim()
-                })),
-                smallWords: EXAM_DATA.smallWords.map(s => ({
-                    id: s.id,
-                    smallWord: s.word,
-                    grammarRule: s.note,
-                    maxPts: s.maxPts,
-                    studentSentence: document.getElementById(`input-${s.id}`).value.trim()
-                }))
-            };
-
             btn.disabled = true;
             spinner.classList.remove('hidden');
-            btnText.textContent = 'Evaluating Answers...';
+            btnText.textContent = 'Evaluating...';
+
+            const submission = collectSubmission();
+            let gradedReport = null;
 
             try {
-                const aiResult = await tryGeminiWithShortTimeout(submission, 6000);
-                if (aiResult && Array.isArray(aiResult.results) && aiResult.results.length > 0) {
-                    applyEvaluationResults(aiResult);
-                } else {
-                    applyEvaluationResults(evaluateDeterministicExam(submission));
-                }
+                gradedReport = await tryGeminiWithShortTimeout(submission, 5000);
             } catch (_) {
-                // Silent, zero-error fallback to our comprehensive client-side semantic & grammatical engine
-                applyEvaluationResults(evaluateDeterministicExam(submission));
-            } finally {
-                btn.disabled = false;
-                spinner.classList.add('hidden');
-                btnText.textContent = 'Re-Evaluate Written Exam';
+                gradedReport = evaluateDeterministicExam(submission);
             }
-        }
 
-        function applyEvaluationResults(evaluation) {
-            let sumWritten = 0;
+            // Apply per-item scores and feedback banners
+            let totalWritten = 0;
+            const resultsList = Array.isArray(gradedReport?.results)
+                ? gradedReport.results
+                : evaluateDeterministicExam(submission).results;
 
-            evaluation.results.forEach(res => {
-                const clamped = Math.max(0, Math.min(res.maxPts, res.awarded));
-                sumWritten += clamped;
+            resultsList.forEach(res => {
+                const awarded = Number(res.awarded) || 0;
+                const maxPts = Number(res.maxPts) || 0;
+                totalWritten += awarded;
 
                 const scoreBadge = document.getElementById(`score-${res.id}`);
                 const fbBox = document.getElementById(`fb-${res.id}`);
 
                 if (scoreBadge) {
-                    scoreBadge.textContent = `${clamped} / ${res.maxPts} pts`;
-                    scoreBadge.className = 'text-xs font-bold shrink-0 ' + (
-                        clamped === res.maxPts ? 'text-emerald-400' :
-                        clamped > 0 ? 'text-amber-400' : 'text-rose-400'
-                    );
+                    scoreBadge.textContent = `${awarded} / ${maxPts} ${maxPts === 1 ? 'pt' : 'pts'}`;
+                    if (awarded === maxPts) {
+                        scoreBadge.className = 'text-xs font-bold text-emerald-400 shrink-0';
+                    } else if (awarded > 0) {
+                        scoreBadge.className = 'text-xs font-bold text-amber-400 shrink-0';
+                    } else {
+                        scoreBadge.className = 'text-xs font-bold text-rose-400 shrink-0';
+                    }
                 }
 
                 if (fbBox) {
-                    fbBox.classList.remove('hidden');
-                    if (clamped === res.maxPts) {
-                        fbBox.className = 'text-xs p-3 rounded-lg bg-emerald-950/60 text-emerald-200 border border-emerald-500/30 leading-relaxed';
-                    } else if (clamped > 0) {
-                        fbBox.className = 'text-xs p-3 rounded-lg bg-amber-950/60 text-amber-200 border border-amber-500/30 leading-relaxed';
+                    fbBox.classList.remove('hidden', 'bg-emerald-950/40', 'border-emerald-500/30', 'text-emerald-200', 'bg-amber-950/40', 'border-amber-500/30', 'text-amber-200', 'bg-rose-950/40', 'border-rose-500/30', 'text-rose-200');
+                    if (awarded === maxPts) {
+                        fbBox.classList.add('bg-emerald-950/40', 'border', 'border-emerald-500/30', 'text-emerald-200');
+                    } else if (awarded > 0) {
+                        fbBox.classList.add('bg-amber-950/40', 'border', 'border-amber-500/30', 'text-amber-200');
                     } else {
-                        fbBox.className = 'text-xs p-3 rounded-lg bg-rose-950/60 text-rose-200 border border-rose-500/30 leading-relaxed';
+                        fbBox.classList.add('bg-rose-950/40', 'border', 'border-rose-500/30', 'text-rose-200');
                     }
-                    fbBox.innerHTML = `<strong class="text-white">Examiner Feedback:</strong> ${escapeHtml(res.feedback)}`;
+                    fbBox.textContent = res.feedback || '';
                 }
             });
 
-            writtenScore = +sumWritten.toFixed(1);
+            writtenScore = +totalWritten.toFixed(1);
             refreshTotalScore();
 
-            // Update status badge & summary banner
+            // Update header status badge & global summary banner
             const statusBadge = document.getElementById('exam-status-badge');
-            statusBadge.textContent = 'Written Sections Graded';
-            statusBadge.className = 'px-2.5 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-full';
+            if (statusBadge) {
+                statusBadge.textContent = 'Graded';
+                statusBadge.className = 'px-2.5 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 rounded-full';
+            }
 
             const globalBox = document.getElementById('global-feedback-box');
-            globalBox.classList.remove('hidden');
-            globalBox.className = 'section-card rounded-2xl border border-indigo-500/30 bg-indigo-950/50 p-5 sm:p-6 shadow-xl space-y-2';
-            globalBox.innerHTML = `
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <h4 class="font-bold text-indigo-200 text-base">Written Assessment Summary (${writtenScore} / 88 pts)</h4>
-                    <span class="text-xs font-semibold text-indigo-300">Complete Part 4 below for final 100-pt score</span>
-                </div>
-                <p class="text-sm text-slate-300 leading-relaxed">${escapeHtml(evaluation.overallSummary)}</p>
-            `;
+            if (globalBox) {
+                globalBox.classList.remove('hidden');
+                globalBox.className = 'section-card rounded-2xl border border-indigo-500/30 bg-indigo-950/40 p-5 sm:p-6 shadow-xl text-slate-200 space-y-2';
+                globalBox.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h4 class="text-base font-bold text-indigo-300">Written Assessment Summary</h4>
+                        <span class="px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-sm font-extrabold text-indigo-200">
+                            Written Score: ${writtenScore} / 88 pts
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed">${gradedReport?.overallSummary || 'Evaluation completed.'}</p>
+                `;
+                globalBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
 
-            globalBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            btn.disabled = false;
+            spinner.classList.add('hidden');
+            btnText.textContent = 'Re-evaluate Written Exam';
         }
 
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-
-        // Initialize UI on load
+        // Initialize immediately when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initExamUI);
         } else {
