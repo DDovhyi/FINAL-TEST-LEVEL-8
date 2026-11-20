@@ -824,13 +824,13 @@
                 },
                 {
                     id: 'sp_2',
-                    title: 'Topic 2: Setbacks, Resilience & Lessons Learned',
-                    prompt: 'Describe a situation when a plan fell through or a task turned out to be much more complicated than expected. What specifically helped you cope with the obstacles, and what would you do differently if you faced the same challenge again?'
+                    title: 'Topic 2: Cookery & Kitchen Challenges',
+                    prompt: 'Talk about a memorable cooking experience—either a dish you are proud of mastering or a time when a recipe went completely wrong in the kitchen. Walk through the preparation steps (chopping, kneading, roasting, etc.) and explain what saved or ruined the meal.'
                 },
                 {
                     id: 'sp_3',
-                    title: 'Topic 3: Rules, Compromises & Responsibility',
-                    prompt: 'Think of a situation at work, in your studies, or in everyday life where you had to balance strict rules, personal convenience, and reaching a compromise with others. What decision did you make, and why was it justified?'
+                    title: 'Topic 3: Crime, Law & Fair Punishment',
+                    prompt: 'Imagine you are a judge or a witness dealing with a non-violent offence such as fraud, shoplifting, or bribery. What evidence would matter most to prove guilt or innocence, and what kind of sentence (a fine, community service, or imprisonment) would be truly fair and effective?'
                 }
             ]
         };
@@ -1335,6 +1335,7 @@
                 const totalGroups = def.conceptGroups.length;
                 const ratio = matchedGroups / totalGroups;
                 const gentleNote = buildGentleNotes(raw, typos, true);
+                const meaningfulWords = tokens.filter(t => !STOP_WORDS_EN.has(t));
 
                 if (usesBanned && matchedGroups <= 1) {
                     results.push({
@@ -1343,26 +1344,27 @@
                         maxPts: def.maxPts,
                         feedback: `Circular or incomplete definition — do not just repeat "${def.word}" without explaining what it means. No points awarded. Model: "${def.reference}"`
                     });
-                } else if (ratio >= 0.6 || (totalGroups === 1 && matchedGroups === 1)) {
-                    results.push({
-                        id: def.id,
-                        awarded: def.maxPts,
-                        maxPts: def.maxPts,
-                        feedback: `Clear, accurate definition capturing the core meaning!${gentleNote} Model: "${def.reference}"`
-                    });
-                } else if (matchedGroups >= 1) {
-                    results.push({
-                        id: def.id,
-                        awarded: 1,
-                        maxPts: def.maxPts,
-                        feedback: `Partially accurate idea, but missing key details of what "${def.word}" actually does or means.${gentleNote} Model: "${def.reference}"`
-                    });
-                } else {
+                } else if (matchedGroups === 0) {
                     results.push({
                         id: def.id,
                         awarded: 0,
                         maxPts: def.maxPts,
-                        feedback: `Irrelevant or inaccurate explanation — does not match the meaning of "${def.word}". No points awarded. Model: "${def.reference}"`
+                        feedback: `Nonsense or irrelevant definition — does not explain "${def.word}". No points awarded. Model: "${def.reference}"`
+                    });
+                } else if (meaningfulWords.length < 4 || (totalGroups >= 2 && matchedGroups < totalGroups) || ratio < 0.85) {
+                    const partialPts = (meaningfulWords.length >= 3 && matchedGroups >= 2) ? 1 : 0.5;
+                    results.push({
+                        id: def.id,
+                        awarded: partialPts,
+                        maxPts: def.maxPts,
+                        feedback: `Too brief or incomplete definition — it hints at the idea, but does not fully explain "${def.word}" (deducted ${def.maxPts - partialPts} pt${def.maxPts - partialPts === 1 ? '' : 's'}).${gentleNote} Model: "${def.reference}"`
+                    });
+                } else {
+                    results.push({
+                        id: def.id,
+                        awarded: def.maxPts,
+                        maxPts: def.maxPts,
+                        feedback: `Complete and accurate definition capturing all key aspects of "${def.word}".${gentleNote} Model: "${def.reference}"`
                     });
                 }
             });
@@ -1769,12 +1771,12 @@
             try {
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
                 const systemPrompt = `You are a strict yet fair Upper-Intermediate English examiner. Grade the exam JSON.
-STRICT ZERO-POINT RULES:
-- Award 0 points immediately for gibberish/keyboard mash, wrong language (e.g., Russian where English is required or English where Russian is required), or irrelevant/nonsense answers that fail to convey the required meaning or target word/pattern. Never award pity points.
+STRICT ZERO-POINT & PARTIAL-CREDIT RULES:
+- Award 0 points immediately for gibberish/keyboard mash, wrong language (e.g., Russian where English is required or English where Russian is required), or irrelevant/nonsense answers. Never award pity points.
+- For Definitions: NEVER award full points for overly short, vague, or incomplete definitions that only give a single synonym or fail to explain the full meaning/function of the word — deduct 1 to 1.5 points and explain what detail is missing. Do NOT praise incomplete answers as "perfect".
 NON-PENALTY SURFACE RULES:
 - NEVER deduct points for recognizable spelling typos/missing letters, missing/incorrect articles (a/an/the), lowercase letters (unless proper names/titles), or missing commas/punctuation.
-- NEVER deduct points in Definitions if phrased simply, as long as core meaning is clear.
-- Mention any surface slips gently as a hint in feedback while awarding FULL points.`;
+- Mention any surface slips gently as a hint in feedback while preserving earned meaning points.`;
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
